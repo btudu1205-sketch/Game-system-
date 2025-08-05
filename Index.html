@@ -351,7 +351,6 @@
   <div id="earn" class="section">
     <h2><i class="fas fa-dollar-sign icon"></i>Earn</h2>
     <button class="btn btn-primary" onclick="showRewardedAd()"><i class="fas fa-video icon"></i>Watch Ads</button>
-    <div id="adbox" style="margin:20px 0;"></div>
     <button class="btn btn-secondary" onclick="showTasks()"><i class="fas fa-tasks icon"></i>Complete Tasks</button>
     <div id="taskList" style="margin-top: 20px;"></div>
   </div>
@@ -652,23 +651,18 @@
   }
 
   function showRewardedAd() {
-    const showAd = window[`show_${MONETAG_ZONE_ID}`];
-    if (showAd) {
-      showAd()
-        .then(() => {
-          balance += 10;
-          ads += 1;
-          saveData();
-          alert("✅ You earned 10 points!");
-          updateUI();
-        })
-        .catch(error => {
-          console.error("Ad failed to show:", error);
-          alert("❌ Ad could not be loaded. Please try again.");
-        });
-    } else {
-      alert("❌ Ad script not loaded. Please refresh the page.");
-    }
+    // You need to replace this with your actual Monetag Rewarded Ad code
+    // The example code below is a placeholder for your ad logic
+    // Please check Monetag's official documentation for the correct implementation
+    
+    // Simulate a successful ad view
+    setTimeout(() => {
+        balance += 10;
+        ads += 1;
+        saveData();
+        alert("✅ You earned 10 points!");
+        updateUI();
+    }, 1500); // Wait 1.5 seconds to simulate ad loading
   }
 
   function showTasks() {
@@ -949,12 +943,6 @@
   }
 
   window.onload = () => {
-    const script = document.createElement('script');
-    script.src = `//libtl.com/sdk.js`;
-    script.setAttribute('data-zone', MONETAG_ZONE_ID);
-    script.setAttribute('data-sdk', `show_${MONETAG_ZONE_ID}`);
-    document.head.appendChild(script);
-
     checkLoginStatus();
     const homeButton = document.querySelector('nav button:first-child');
     if (homeButton) {
