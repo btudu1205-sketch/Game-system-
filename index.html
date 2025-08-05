@@ -443,7 +443,6 @@
 <script>
   const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
   const CHAT_ID = '5965219037';
-  const MONETAG_ZONE_ID = '9572158';
 
   let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
@@ -593,14 +592,24 @@
 
   function loadUserData(username) {
     const userData = JSON.parse(localStorage.getItem(username));
-    balance = userData.balance;
-    withdraw = userData.withdraw;
-    tasks = userData.tasks;
-    ads = userData.ads;
-    currentUserChatId = userData.chatId;
+    if (userData) {
+      balance = userData.balance;
+      withdraw = userData.withdraw;
+      tasks = userData.tasks;
+      ads = userData.ads;
+      currentUserChatId = userData.chatId;
 
-    document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
-    updateUI();
+      document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
+      updateUI();
+    } else {
+        alert("User data not found. Please log in again.");
+        logout();
+    }
+  }
+  
+  function logout() {
+      localStorage.removeItem('currentUsername');
+      location.reload();
   }
 
   function updateUI() {
@@ -614,16 +623,18 @@
   }
 
   function saveData() {
-    const userData = {
-      username: currentUsername,
-      password: JSON.parse(localStorage.getItem(currentUsername)).password,
-      chatId: currentUserChatId,
-      balance: balance,
-      withdraw: withdraw,
-      tasks: tasks,
-      ads: ads
-    };
-    localStorage.setItem(currentUsername, JSON.stringify(userData));
+    if (currentUsername) {
+      const userData = {
+        username: currentUsername,
+        password: JSON.parse(localStorage.getItem(currentUsername)).password,
+        chatId: currentUserChatId,
+        balance: balance,
+        withdraw: withdraw,
+        tasks: tasks,
+        ads: ads
+      };
+      localStorage.setItem(currentUsername, JSON.stringify(userData));
+    }
   }
   
   function showSection(id, element) {
@@ -749,7 +760,7 @@
     }
     const gameHtml = getGamePageHtml();
     const gameUrl = `data:text/html,${encodeURIComponent(gameHtml)}`;
-    const gameWindow = window.open(gameUrl, '_blank', 'noopener=yes');
+    window.open(gameUrl, '_blank', 'noopener=yes');
   }
 
   function getGamePageHtml() {
@@ -854,7 +865,7 @@
               const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
               const gridCols = 12;
               const bubbleSpacing = 3;
-              const dropDistance = bubbleRadius * 2 + bubbleSpacing;
+              const dropDistance = 20; // Changed drop distance to a fixed value
               
               const levelConfigs = [
                 { rows: 5, scoreToWin: 500 },
@@ -898,7 +909,10 @@
               }
 
               function updateShooterPreview() {
-                document.getElementById('shooterColorPreview').style.backgroundColor = shooterBubble.color;
+                const previewElement = document.getElementById('shooterColorPreview');
+                if(previewElement) {
+                   previewElement.style.backgroundColor = shooterBubble.color;
+                }
               }
 
               function startBubbleShooter() {
@@ -946,7 +960,7 @@
                 clearInterval(gameInterval);
                 gameActive = false;
                 alert('You win!');
-                const winPoints = Math.floor(currentScore / 50) + 100; // Bonus for winning
+                const winPoints = Math.floor(currentScore / 50) + 100;
                 window.opener.postMessage({ type: 'game-result', score: currentScore, points: winPoints, status: 'win' }, '*');
                 window.close();
               }
@@ -1092,7 +1106,7 @@
 
               function dropBubbles() {
                 for (const bubble of bubbles) {
-                  bubble.y += 20;
+                  bubble.y += dropDistance;
                 }
               }
 
@@ -1150,12 +1164,22 @@
   }
   
   window.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'game-result') {
-          balance += event.data.points;
-          saveData();
-          updateUI();
-          alert(`Game finished! Your score was ${event.data.score}. You earned ${event.data.points} points. Status: ${event.data.status}.`);
-      }
+    if (event.data && event.data.type === 'game-result') {
+        if (typeof balance === 'undefined') {
+            // If balance is not yet loaded, try to load it from localStorage
+            const userData = JSON.parse(localStorage.getItem(currentUsername));
+            if (userData) {
+                balance = userData.balance;
+            } else {
+                console.error("Could not load user data to update balance.");
+                return;
+            }
+        }
+        balance += event.data.points;
+        saveData();
+        updateUI();
+        alert(`Game finished! Your score was ${event.data.score}. You earned ${event.data.points} points. Status: ${event.data.status}.`);
+    }
   });
 
   window.onload = () => {
