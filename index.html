@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
+    /* CSS কোড: সম্পূর্ণ স্টাইল এখানে রয়েছে, কোনো পরিবর্তন করা হয়নি */
     :root {
       --primary-color: #4CAF50;
       --secondary-color: #2196F3;
@@ -441,13 +442,16 @@
 </nav>
 
 <script>
-  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
-  const CHAT_ID = '5965219037';
+  // আপনার Telegram Bot Token এবং আপনার Telegram Chat ID এখানে বসান।
+  // এই দুটি আপনার নিজস্ব অ্যাকাউন্ট থেকে নিতে হবে।
+  const BOT_TOKEN = 'আপনার-বট-টোকেন-এখানে-বসবে'; 
+  const CHAT_ID = 'আপনার-চ্যাট-আইডি-এখানে-বসবে';
 
   let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
   let tempUserData = {};
   
+  // Telegram-এ মেসেজ পাঠানোর ফাংশন
   function sendTelegramNotification(chatId, message) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
     fetch(url)
@@ -462,6 +466,7 @@
       });
   }
 
+  // Telegram-এ ছবি পাঠানোর ফাংশন
   function sendTelegramImageNotification(chatId, imageFile, caption) {
     const formData = new FormData();
     formData.append('chat_id', chatId);
@@ -485,6 +490,7 @@
     });
   }
 
+  // Verification Modal দেখানো এবং বন্ধ করার ফাংশন
   function showModal() {
     document.getElementById('verificationModal').style.display = 'block';
   }
@@ -492,6 +498,7 @@
     document.getElementById('verificationModal').style.display = 'none';
   }
 
+  // লগইন অবস্থা চেক করার ফাংশন
   function checkLoginStatus() {
     if (currentUsername) {
       document.getElementById('authSections').classList.add('hidden');
@@ -505,16 +512,17 @@
     }
   }
 
+  // লগইন এবং রেজিস্ট্রেশন ফর্ম দেখানোর ফাংশন
   function showLogin() {
     document.getElementById('loginSection').classList.remove('hidden');
     document.getElementById('registerSection').classList.add('hidden');
   }
-
   function showRegister() {
     document.getElementById('loginSection').classList.add('hidden');
     document.getElementById('registerSection').classList.remove('hidden');
   }
 
+  // রেজিস্ট্রেশন হ্যান্ডেল করার ফাংশন
   function handleRegistration(e) {
     e.preventDefault();
     const username = document.getElementById('reg_username').value;
@@ -555,6 +563,7 @@
     showModal();
   }
   
+  // ভেরিফিকেশন কোড চেক করার ফাংশন
   function verifyCode(e) {
     e.preventDefault();
     const submittedCode = document.getElementById('verificationCodeInput').value;
@@ -572,6 +581,7 @@
     }
   }
 
+  // লগইন হ্যান্ডেল করার ফাংশন
   function handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('login_username').value;
@@ -590,6 +600,7 @@
   let balance, withdraw, tasks, ads;
   let currentUserChatId;
 
+  // ব্যবহারকারীর ডেটা লোড করার ফাংশন
   function loadUserData(username) {
     const userData = JSON.parse(localStorage.getItem(username));
     if (userData) {
@@ -607,11 +618,13 @@
     }
   }
   
+  // লগআউট করার ফাংশন
   function logout() {
       localStorage.removeItem('currentUsername');
       location.reload();
   }
 
+  // UI আপডেট করার ফাংশন
   function updateUI() {
     document.getElementById("balance").innerText = balance;
     document.getElementById("withdraw").innerText = withdraw;
@@ -622,6 +635,7 @@
     document.getElementById("profileAds").innerText = ads;
   }
 
+  // ডেটা সেভ করার ফাংশন (localStorage-এ)
   function saveData() {
     if (currentUsername) {
       const userData = {
@@ -637,6 +651,7 @@
     }
   }
   
+  // বিভিন্ন সেকশন দেখানোর ফাংশন
   function showSection(id, element) {
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
@@ -647,6 +662,7 @@
     updateUI();
   }
 
+  // অ্যাড দেখার ফাংশন
   function showRewardedAd() {
     alert("Simulating ad view... Please wait.");
     setTimeout(() => {
@@ -658,6 +674,7 @@
     }, 1500);
   }
 
+  // টাস্ক দেখানোর ফাংশন
   function showTasks() {
     var html = `
       <div class="task-item">
@@ -714,6 +731,7 @@
     document.getElementById("taskList").innerHTML = html;
   }
 
+  // টাস্ক সাবমিট করার ফাংশন
   function submitTask(e, points, taskName) {
     e.preventDefault();
     const fileInput = e.target.querySelector('input[type="file"]');
@@ -730,6 +748,7 @@
     sendTelegramImageNotification(CHAT_ID, file, caption);
   }
 
+  // উইথড্র সাবমিট করার ফাংশন
   function submitWithdraw(e) {
     e.preventDefault();
     const amount = parseInt(document.getElementById("amount").value);
@@ -753,6 +772,7 @@
     sendTelegramNotification(CHAT_ID, withdrawMessage);
   }
   
+  // গেমের পেজ খোলার ফাংশন
   function openGamePage() {
     if (!currentUsername) {
         alert("Please login to play games.");
@@ -763,6 +783,7 @@
     window.open(gameUrl, '_blank', 'noopener=yes');
   }
 
+  // বাবল শুটার গেমের HTML কোড
   function getGamePageHtml() {
     return `
       <!DOCTYPE html>
@@ -865,7 +886,7 @@
               const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
               const gridCols = 12;
               const bubbleSpacing = 3;
-              const dropDistance = 20; // Changed drop distance to a fixed value
+              const dropDistance = 20;
               
               const levelConfigs = [
                 { rows: 5, scoreToWin: 500 },
@@ -1111,9 +1132,8 @@
               }
 
               function startDroppingAnimation(fallingBubbles) {
-                // This function is currently not fully implemented to avoid blocking the main game loop.
-                // The bubbles are just removed instantly.
-                // A more advanced version would use a separate animation loop for a better visual effect.
+                // এই ফাংশনটি বর্তমানে প্রধান গেম লুপে কোনো বাধা না দিয়ে কাজ করার জন্য সম্পূর্ণভাবে প্রয়োগ করা হয়নি।
+                // একটি উন্নত সংস্করণে, একটি ভালো ভিজ্যুয়াল ইফেক্টের জন্য একটি আলাদা অ্যানিমেশন লুপ ব্যবহার করা যেতে পারে।
               }
               
               function checkForGameOver() {
@@ -1163,10 +1183,10 @@
     `;
   }
   
+  // গেম থেকে আসা মেসেজ শোনার ফাংশন
   window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'game-result') {
         if (typeof balance === 'undefined') {
-            // If balance is not yet loaded, try to load it from localStorage
             const userData = JSON.parse(localStorage.getItem(currentUsername));
             if (userData) {
                 balance = userData.balance;
@@ -1182,6 +1202,7 @@
     }
   });
 
+  // পেজ লোড হওয়ার পর প্রাথমিক কাজ
   window.onload = () => {
     checkLoginStatus();
     const homeButton = document.querySelector('nav button:first-child');
