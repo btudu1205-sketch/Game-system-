@@ -453,7 +453,7 @@
   // Your Telegram and Monetag Details
   const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
   const CHAT_ID = '5965219037';
-  const MONETAG_ZONE_ID = '9572158'; // Monetag zone ID for future use
+  const MONETAG_ZONE_ID = '9572158';
 
   let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
@@ -770,6 +770,35 @@
 
   const bubbleRadius = 15;
   const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
+  const gridRows = 5;
+  const gridCols = 12;
+  const bubbleSpacing = 3;
+  const dropDistance = bubbleRadius * 2 + bubbleSpacing;
+  let shotCount = 0;
+
+  function createBubbleGrid() {
+    bubbles = [];
+    for (let row = 0; row < gridRows; row++) {
+      for (let col = 0; col < gridCols - (row % 2); col++) {
+        const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+        const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing);
+        const y = row * (bubbleRadius * 2 + bubbleSpacing) + bubbleRadius + bubbleSpacing;
+        bubbles.push({ x, y, color, radius: bubbleRadius });
+      }
+    }
+  }
+
+  function createShooterBubble() {
+    shooterBubble = {
+      x: canvas.width / 2,
+      y: canvas.height - 30,
+      radius: bubbleRadius,
+      color: bubbleColors[Math.floor(Math.random() * bubbleColors.length)],
+      isShot: false,
+      speedX: 0,
+      speedY: 0
+    };
+  }
 
   function startBubbleShooter() {
     canvas = document.getElementById('gameCanvas');
@@ -780,26 +809,9 @@
     
     gameActive = true;
     currentScore = 0;
-    bubbles = []; // Clear previous bubbles
-    
-    for (let row = 0; row < 5; row++) {
-      for (let col = 0; col < (row % 2 === 0 ? 12 : 11); col++) {
-        const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
-        const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + 5 : bubbleRadius * 2 + 5);
-        const y = row * bubbleRadius * 2 + bubbleRadius;
-        bubbles.push({ x, y, color });
-      }
-    }
-    
-    shooterBubble = {
-      x: canvas.width / 2,
-      y: canvas.height - 30,
-      radius: bubbleRadius,
-      color: bubbleColors[Math.floor(Math.random() * bubbleColors.length)],
-      isShot: false,
-      speedX: 0,
-      speedY: 0
-    };
+    shotCount = 0;
+    createBubbleGrid();
+    createShooterBubble();
 
     gameInterval = setInterval(updateGame, 1000 / 60);
   }
@@ -829,42 +841,60 @@
       shooterBubble.x += shooterBubble.speedX;
       shooterBubble.y += shooterBubble.speedY;
 
+      // Bounce off walls
       if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
         shooterBubble.speedX *= -1;
       }
-      
-      let collision = false;
-      for (let i = 0; i < bubbles.length; i++) {
-        const dx = shooterBubble.x - bubbles[i].x;
-        const dy = shooterBubble.y - bubbles[i].y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < bubbleRadius * 2) {
-          if (shooterBubble.color === bubbles[i].color) {
-            const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
-            if (bubblesToPop.length >= 3) {
-              bubblesToPop.forEach(popBubble => {
-                bubbles = bubbles.filter(b => b !== popBubble);
-              });
-              currentScore += bubblesToPop.length * 10;
+      // Check for collision with top or other bubbles
+      let collision = false;
+      if (shooterBubble.y - shooterBubble.radius <= 0) {
+        collision = true;
+      } else {
+        for (let i = 0; i < bubbles.length; i++) {
+          const dx = shooterBubble.x - bubbles[i].x;
+          const dy = shooterBubble.y - bubbles[i].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < bubbleRadius * 2) {
+            collision = true;
+            
+            // Pop logic
+            if (shooterBubble.color === bubbles[i].color) {
+              const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
+              if (bubblesToPop.length >= 2) { // 2 matching bubbles + the new one
+                bubblesToPop.forEach(popBubble => {
+                  bubbles = bubbles.filter(b => b !== popBubble);
+                });
+                currentScore += (bubblesToPop.length + 1) * 10;
+              } else {
+                bubbles.push({ x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius });
+              }
+            } else {
+              bubbles.push({ x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius });
             }
+            break;
           }
-          collision = true;
-          break;
         }
       }
 
-      if (shooterBubble.y - shooterBubble.radius < 0 || collision) {
+      if (collision) {
           shooterBubble.isShot = false;
-          resetShooter();
+          shotCount++;
+          if (shotCount % 3 === 0) {
+            dropBubbles();
+          }
+          createShooterBubble();
       }
     }
+    
+    checkForGameOver();
   }
-
+  
   function drawBubbles() {
     for (const bubble of bubbles) {
       ctx.beginPath();
-      ctx.arc(bubble.x, bubble.y, bubbleRadius, 0, Math.PI * 2);
+      ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
       ctx.fillStyle = bubble.color;
       ctx.fill();
       ctx.closePath();
@@ -893,11 +923,20 @@
     shooterBubble.speedY = Math.sin(angle) * speed;
     shooterBubble.isShot = true;
   }
+
+  function dropBubbles() {
+    for (const bubble of bubbles) {
+      bubble.y += dropDistance;
+    }
+  }
   
-  function resetShooter() {
-    shooterBubble.x = canvas.width / 2;
-    shooterBubble.y = canvas.height - 30;
-    shooterBubble.color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+  function checkForGameOver() {
+    for (const bubble of bubbles) {
+      if (bubble.y + bubble.radius >= canvas.height - 30) {
+        endGame();
+        break;
+      }
+    }
   }
 
   function findConnectedBubbles(x, y, color) {
