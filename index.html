@@ -1,320 +1,589 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monetag Earn Bot</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
-  <style>
-    /* Global Styles & Variables */
-    :root {
-      --primary-color: #4CAF50;
-      --secondary-color: #2196F3;
-      --background-color: #f0f2f5;
-      --card-bg-color: #ffffff;
-      --text-color: #333333;
-      --secondary-text-color: #555555;
-      --light-text-color: #777777;
-      --border-radius: 12px;
-      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      --transition-speed: 0.3s ease;
-    }
+  // Your Telegram and Monetag Details
+  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
+  const CHAT_ID = '5965219037';
+  const MONETAG_ZONE_ID = '9572158';
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  let currentUsername = localStorage.getItem('currentUsername') || null;
+  let verificationCode = null;
+  let tempUserData = {};
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
-      padding-bottom: 80px; /* Space for the fixed navigation bar */
-    }
-    
-    /* Main Layout */
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Section Styling */
-    .section {
-      display: none;
-      padding: 20px 0;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .icon {
-      color: var(--primary-color);
-    }
-
-    /* Card Styling */
-    .card {
-      background: var(--card-bg-color);
-      padding: 20px;
-      margin-bottom: 15px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      transition: transform var(--transition-speed);
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-    }
-
-    .card h3 {
-      font-size: 18px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      color: var(--secondary-text-color);
-    }
-
-    .card .value {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-    
-    .card p {
-      color: var(--light-text-color);
-      font-size: 14px;
-    }
-    
-    /* Button Styling */
-    .btn {
-      padding: 12px 20px;
-      font-size: 16px;
-      font-weight: 600;
-      border: none;
-      border-radius: var(--border-radius);
-      color: var(--card-bg-color);
-      cursor: pointer;
-      width: 100%;
-      text-align: center;
-      text-decoration: none;
-      transition: background-color var(--transition-speed), transform var(--transition-speed);
-      margin-top: 10px;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn-primary {
-      background-color: var(--primary-color);
-    }
-    
-    .btn-secondary {
-      background-color: var(--secondary-color);
-    }
-    
-    /* Input Fields */
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    /* Navigation Bar */
-    nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      max-width: 500px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      justify-content: space-around;
-      background: var(--card-bg-color);
-      border-top: 1px solid #eee;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-      z-index: 1000;
-      padding: 10px 0;
-    }
-
-    nav button {
-      background: none;
-      border: none;
-      font-size: 10px;
-      color: var(--light-text-color);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: color var(--transition-speed);
-    }
-
-    nav button:hover {
-      color: var(--secondary-text-color);
-    }
-
-    nav button.active-nav {
-      color: var(--primary-color);
-      font-weight: 600;
-    }
-
-    nav button i {
-      font-size: 20px;
-    }
-    
-    .support-links .btn {
-        margin-bottom: 10px;
-    }
-
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <div id="mainApp">
-    <section id="home" class="section active">
-      <h2><i class="fas fa-home icon"></i> Dashboard</h2>
-      <div class="card">
-        <h3>Balance</h3>
-        <span class="value" id="balance">0</span>
-      </div>
-      <div class="card">
-        <h3>Total Withdraw</h3>
-        <span class="value">0</span>
-      </div>
-      <div class="card">
-        <h3>Total Tasks</h3>
-        <span class="value">0</span>
-      </div>
-      <div class="card">
-        <h3>Ads Watched</h3>
-        <span class="value">0</span>
-      </div>
-    </section>
-
-    <section id="earn" class="section">
-      <h2><i class="fas fa-dollar-sign icon"></i> Earn</h2>
-      <div class="card">
-        <h3>Watch Ads</h3>
-        <button class="btn btn-secondary">Watch Now</button>
-      </div>
-    </section>
-
-    <section id="withdrawSection" class="section">
-      <h2><i class="fas fa-wallet icon"></i> Withdraw</h2>
-      <div class="card">
-        <h3>Withdraw to your account</h3>
-        <input type="text" placeholder="Number" aria-label="Phone Number">
-        <input type="number" placeholder="Amount" aria-label="Withdraw Amount">
-        <button class="btn btn-secondary">Submit</button>
-      </div>
-    </section>
-
-    <section id="context" class="section">
-      <h2><i class="fas fa-headset icon"></i> Support</h2>
-      <div class="card support-links">
-        <h3>Contact Support</h3>
-        <a href="https://t.me/admin_link_here" target="_blank" class="btn btn-secondary" aria-label="Admin Support Link">
-          <i class="fab fa-telegram-plane"></i> Admin Support
-        </a>
-        <a href="https://t.me/owner_link_here" target="_blank" class="btn btn-secondary" aria-label="Owner Support Link">
-          <i class="fab fa-telegram-plane"></i> Owner Support
-        </a>
-      </div>
-    </section>
-
-    <section id="profile" class="section">
-      <h2><i class="fas fa-user-circle icon"></i> Profile</h2>
-      <div class="card">
-        <h3>Username</h3>
-        <span class="value">Guest</span>
-      </div>
-      <div class="card">
-        <h3>Total Withdraw</h3>
-        <span class="value">0</span>
-      </div>
-      <div class="card">
-        <h3>Total Tasks</h3>
-        <span class="value">0</span>
-      </div>
-      <div class="card">
-        <h3>Total Ads Watched</h3>
-        <span class="value">0</span>
-      </div>
-    </section>
-
-    <section id="gameSection" class="section">
-      <h2><i class="fas fa-gamepad icon"></i> Play Game</h2>
-      <div class="card">
-        <h3>Mini Puzzle Challenge</h3>
-        <p>Play a fun puzzle game and earn points if you complete it!</p>
-        <a href="https://games.crazygames.com/en_US/candy-crush" target="_blank" class="btn btn-primary" aria-label="Play Game">
-          <i class="fas fa-play-circle"></i> Play Now
-        </a>
-      </div>
-    </section>
-  </div>
-</div>
-
-<nav id="appNav">
-  <button onclick="showSection('home', this)" class="active-nav" aria-label="Home">
-    <i class="fas fa-home"></i>
-    <span>Home</span>
-  </button>
-  <button onclick="showSection('earn', this)" aria-label="Earn">
-    <i class="fas fa-dollar-sign"></i>
-    <span>Earn</span>
-  </button>
-  <button onclick="showSection('withdrawSection', this)" aria-label="Withdraw">
-    <i class="fas fa-wallet"></i>
-    <span>Withdraw</span>
-  </button>
-  <button onclick="showSection('context', this)" aria-label="Support">
-    <i class="fas fa-headset"></i>
-    <span>Support</span>
-  </button>
-  <button onclick="showSection('profile', this)" aria-label="Profile">
-    <i class="fas fa-user-circle"></i>
-    <span>Profile</span>
-  </button>
-  <button onclick="showSection('gameSection', this)" aria-label="Game">
-    <i class="fas fa-gamepad"></i>
-    <span>Game</span>
-  </button>
-</nav>
-
-<script>
-  function showSection(id, element) {
-    // Hide all sections
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    // Show the selected section
-    document.getElementById(id).classList.add("active");
-
-    // Remove active class from all navigation buttons
-    document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
-    // Add active class to the clicked button
-    element.classList.add("active-nav");
+  function sendTelegramNotification(chatId, message) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (!data.ok) {
+          console.error("Failed to send Telegram message:", data.description);
+        }
+      })
+      .catch(error => {
+        console.error("Error sending Telegram message:", error);
+      });
   }
-</script>
 
-</body>
-</html>
+  function sendTelegramImageNotification(chatId, imageFile, caption) {
+    const formData = new FormData();
+    formData.append('chat_id', chatId);
+    formData.append('photo', imageFile);
+    formData.append('caption', caption);
+
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data.ok) {
+        console.error("Failed to send image:", data.description);
+      }
+    })
+    .catch(error => {
+      console.error("Error sending image:", error);
+    });
+  }
+
+  function showModal() {
+    document.getElementById('verificationModal').style.display = 'block';
+  }
+  function closeModal() {
+    document.getElementById('verificationModal').style.display = 'none';
+  }
+
+  function checkLoginStatus() {
+    if (currentUsername) {
+      document.getElementById('authSections').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('appNav').style.display = 'flex';
+      loadUserData(currentUsername);
+    } else {
+      document.getElementById('authSections').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('appNav').style.display = 'none';
+    }
+  }
+
+  function showLogin() {
+    document.getElementById('loginSection').classList.remove('hidden');
+    document.getElementById('registerSection').classList.add('hidden');
+  }
+
+  function showRegister() {
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('registerSection').classList.remove('hidden');
+  }
+
+  function handleRegistration(e) {
+    e.preventDefault();
+    const username = document.getElementById('reg_username').value;
+    const password = document.getElementById('reg_password').value;
+    const telegramChatId = document.getElementById('reg_chat_id').value;
+    
+    if (!username.startsWith('@')) {
+        alert("❌ Username must start with '@'.");
+        return;
+    }
+    if (password.length < 8) {
+        alert("❌ Password must be at least 8 characters long.");
+        return;
+    }
+    if (telegramChatId.length !== 10) {
+        alert("❌ Telegram Chat ID must be exactly 10 digits long.");
+        return;
+    }
+    
+    if (localStorage.getItem(username)) {
+      alert("❌ This username is already taken!");
+      return;
+    }
+    
+    verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    sendTelegramNotification(telegramChatId, `Your verification code is: <b>${verificationCode}</b>`);
+    
+    tempUserData = {
+      username: username,
+      password: password,
+      chatId: telegramChatId,
+      balance: 0,
+      withdraw: 0,
+      tasks: 0,
+      ads: 0
+    };
+    
+    showModal();
+  }
+  
+  function verifyCode(e) {
+    e.preventDefault();
+    const submittedCode = document.getElementById('verificationCodeInput').value;
+    
+    if (submittedCode === verificationCode) {
+      localStorage.setItem(tempUserData.username, JSON.stringify(tempUserData));
+      alert("✅ Registration successful! Please log in.");
+      closeModal();
+      showLogin();
+      verificationCode = null;
+      tempUserData = {};
+      document.getElementById('verificationCodeInput').value = '';
+    } else {
+      alert("❌ Incorrect verification code.");
+    }
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('login_username').value;
+    const password = document.getElementById('login_password').value;
+    
+    const userData = JSON.parse(localStorage.getItem(username));
+    if (userData && userData.password === password) {
+      currentUsername = username;
+      localStorage.setItem('currentUsername', username);
+      checkLoginStatus();
+    } else {
+      alert("❌ Invalid username or password.");
+    }
+  }
+
+  let balance, withdraw, tasks, ads;
+  let currentUserChatId;
+
+  function loadUserData(username) {
+    const userData = JSON.parse(localStorage.getItem(username));
+    balance = userData.balance;
+    withdraw = userData.withdraw;
+    tasks = userData.tasks;
+    ads = userData.ads;
+    currentUserChatId = userData.chatId;
+
+    document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById("balance").innerText = balance;
+    document.getElementById("withdraw").innerText = withdraw;
+    document.getElementById("tasks").innerText = tasks;
+    document.getElementById("ads").innerText = ads;
+    document.getElementById("profileWithdraw").innerText = withdraw;
+    document.getElementById("profileTasks").innerText = tasks;
+    document.getElementById("profileAds").innerText = ads;
+  }
+
+  function saveData() {
+    const userData = {
+      username: currentUsername,
+      password: JSON.parse(localStorage.getItem(currentUsername)).password,
+      chatId: currentUserChatId,
+      balance: balance,
+      withdraw: withdraw,
+      tasks: tasks,
+      ads: ads
+    };
+    localStorage.setItem(currentUsername, JSON.stringify(userData));
+  }
+  
+  function showSection(id, element) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    
+    document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
+    element.classList.add("active-nav");
+    
+    updateUI();
+
+    if (id !== 'gameSection') {
+      endGame();
+    }
+  }
+
+  function showRewardedAd() {
+    // This is a placeholder for your Monetag Rewarded Ad code.
+    // Please replace this with the actual code provided by Monetag.
+    // The following code simulates a successful ad view.
+
+    alert("Simulating ad view... Please wait.");
+    setTimeout(() => {
+        balance += 10;
+        ads += 1;
+        saveData();
+        alert("✅ You earned 10 points!");
+        updateUI();
+    }, 1500);
+  }
+
+  function showTasks() {
+    var html = `
+      <div class="task-item">
+        <span><b>Task 1:</b> Subscribe to our Telegram Channel.</span>
+        <a href="https://t.me/your_channel_link" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-telegram"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Telegram Channel')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 2:</b> Join our Discord Group.</span>
+        <a href="https://discord.gg/your_discord_link" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-discord"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Discord Group')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 3:</b> Follow us on Twitter.</span>
+        <a href="https://twitter.com/your_twitter_profile" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-twitter"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Twitter Follow')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 4:</b> Like our Facebook Page.</span>
+        <a href="https://facebook.com/your_page" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-facebook"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Facebook Page')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 5:</b> Visit our Website.</span>
+        <a href="https://example.com" target="_blank" class="btn btn-secondary">
+          <i class="fas fa-globe"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Website Visit')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+    `;
+    document.getElementById("taskList").innerHTML = html;
+  }
+
+  function submitTask(e, points, taskName) {
+    e.preventDefault();
+    const fileInput = e.target.querySelector('input[type="file"]');
+    const file = fileInput.files[0];
+    
+    tasks += 1;
+    balance += points;
+    saveData();
+    
+    alert("📷 Screenshot submitted. You earned " + points + " points!");
+    updateUI();
+
+    const caption = `<b>New Task Submission!</b>\n<b>User:</b> ${currentUsername}\n<b>Task Name:</b> ${taskName}`;
+    sendTelegramImageNotification(CHAT_ID, file, caption);
+  }
+
+  function submitWithdraw(e) {
+    e.preventDefault();
+    const amount = parseInt(document.getElementById("amount").value);
+    const number = document.getElementById("number").value;
+    
+    if (amount > balance) {
+      alert("❌ Not enough balance.");
+      return;
+    }
+    
+    withdraw += amount;
+    balance -= amount;
+    saveData();
+    
+    alert("✅ Withdraw submitted! Remaining balance: " + balance + ".");
+    updateUI();
+    document.getElementById("number").value = '';
+    document.getElementById("amount").value = '';
+
+    const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${currentUsername}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>Chat ID:</b> ${currentUserChatId}`;
+    sendTelegramNotification(CHAT_ID, withdrawMessage);
+  }
+
+  // ===== Bubble Shooter Game Logic Start (উন্নত করা হয়েছে) =====
+  let gameInterval;
+  let canvas, ctx;
+  let bubbles = [];
+  let shooterBubble;
+  let currentScore = 0;
+  let gameActive = false;
+  let shotsSinceDrop = 0;
+
+  const bubbleRadius = 15;
+  const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
+  const gridRows = 5;
+  const gridCols = 12;
+  const bubbleSpacing = 3;
+  const dropDistance = bubbleRadius * 2 + bubbleSpacing;
+  
+  // গ্রিড পজিশন থেকে বাবল তৈরি করার ফাংশন
+  function createBubble(col, row) {
+    const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing);
+    const y = row * dropDistance + bubbleRadius + bubbleSpacing;
+    const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+    return { x, y, color, radius: bubbleRadius };
+  }
+
+  function createBubbleGrid() {
+    bubbles = [];
+    for (let row = 0; row < gridRows; row++) {
+      const currentGridCols = gridCols - (row % 2);
+      for (let col = 0; col < currentGridCols; col++) {
+        bubbles.push(createBubble(col, row));
+      }
+    }
+  }
+
+  function createShooterBubble() {
+    shooterBubble = {
+      x: canvas.width / 2,
+      y: canvas.height - 30,
+      radius: bubbleRadius,
+      color: bubbleColors[Math.floor(Math.random() * bubbleColors.length)],
+      isShot: false,
+      speedX: 0,
+      speedY: 0
+    };
+  }
+
+  function startBubbleShooter() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    canvas.addEventListener('click', shootBubble);
+
+    document.getElementById('bubbleShooterGame').style.display = 'block';
+    
+    gameActive = true;
+    currentScore = 0;
+    shotsSinceDrop = 0;
+    createBubbleGrid();
+    createShooterBubble();
+
+    gameInterval = setInterval(updateGame, 1000 / 60);
+  }
+
+  function endGame() {
+    if (!gameActive) return;
+    clearInterval(gameInterval);
+    gameActive = false;
+    alert(`Game Over! Your final score is: ${currentScore}`);
+    
+    balance += Math.floor(currentScore / 100);
+    saveData();
+    updateUI();
+    
+    document.getElementById('bubbleShooterGame').style.display = 'none';
+  }
+  
+  function updateGame() {
+    if (!gameActive) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    drawBubbles();
+    drawShooter();
+    
+    if (shooterBubble.isShot) {
+      shooterBubble.x += shooterBubble.speedX;
+      shooterBubble.y += shooterBubble.speedY;
+
+      // বাউন্স লজিক
+      if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
+        shooterBubble.speedX *= -1;
+      }
+
+      // উপরের দেওয়ালে বা অন্য বাবলের সাথে ধাক্কা খাওয়ার লজিক
+      let collision = false;
+      if (shooterBubble.y - shooterBubble.radius <= 0) {
+        collision = true;
+        // উপরে ধাক্কা খেলে গ্রিডে যুক্ত হবে
+        const snapX = shooterBubble.x;
+        const snapY = bubbleRadius + bubbleSpacing;
+        addAndCheckBubble(snapX, snapY, shooterBubble.color);
+      } else {
+        for (let i = 0; i < bubbles.length; i++) {
+          const dx = shooterBubble.x - bubbles[i].x;
+          const dy = shooterBubble.y - bubbles[i].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < bubbleRadius * 2) {
+            collision = true;
+            // অন্য বাবলের সাথে ধাক্কা খেলে গ্রিডে যুক্ত হবে
+            addAndCheckBubble(shooterBubble.x, shooterBubble.y, shooterBubble.color);
+            break;
+          }
+        }
+      }
+
+      if (collision) {
+        shooterBubble.isShot = false;
+        shotsSinceDrop++;
+        if (shotsSinceDrop % 3 === 0) {
+            dropBubbles();
+        }
+        createShooterBubble();
+      }
+    }
+    
+    checkForGameOver();
+  }
+
+  // নতুন বাবল গ্রিডে যুক্ত করা এবং ফাটার জন্য চেক করা
+  function addAndCheckBubble(x, y, color) {
+    // সবচেয়ে কাছের গ্রিড পজিশন খুঁজে বের করা
+    const row = Math.round((y - bubbleRadius - bubbleSpacing) / dropDistance);
+    const currentGridCols = gridCols - (row % 2);
+    const col = Math.round((x - (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing)) / (bubbleRadius * 2));
+    
+    const snapX = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing);
+    const snapY = row * dropDistance + bubbleRadius + bubbleSpacing;
+
+    const newBubble = { x: snapX, y: snapY, color, radius: bubbleRadius };
+    bubbles.push(newBubble);
+
+    // একই রঙের বাবল খুঁজে বের করা এবং ফাটিয়ে দেওয়া
+    const matchingBubbles = findMatchingBubbles(newBubble);
+    if (matchingBubbles.length >= 3) {
+      removeBubbles(matchingBubbles);
+      currentScore += matchingBubbles.length * 10;
+      removeFloatingBubbles();
+    }
+  }
+
+  // একটি বাবলের সাথে একই রঙের সংযুক্ত বাবল খুঁজে বের করা
+  function findMatchingBubbles(startBubble) {
+    const stack = [startBubble];
+    const visited = new Set();
+    const connected = [];
+    const minDistance = bubbleRadius * 2 - 1; // দূরত্ব যাচাইয়ের জন্য সহনশীলতা
+
+    while (stack.length > 0) {
+        const currentBubble = stack.pop();
+        const key = `${currentBubble.x},${currentBubble.y}`;
+
+        if (visited.has(key)) continue;
+        visited.add(key);
+        connected.push(currentBubble);
+
+        for (const otherBubble of bubbles) {
+            if (otherBubble.color === currentBubble.color && !visited.has(`${otherBubble.x},${otherBubble.y}`)) {
+                const dx = currentBubble.x - otherBubble.x;
+                const dy = currentBubble.y - otherBubble.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < minDistance) {
+                    stack.push(otherBubble);
+                }
+            }
+        }
+    }
+    return connected;
+  }
+  
+  // বাবলগুলো মুছে ফেলার ফাংশন
+  function removeBubbles(bubblesToRemove) {
+    bubbles = bubbles.filter(bubble => !bubblesToRemove.includes(bubble));
+  }
+
+  // ভাসমান বাবল খুঁজে বের করা এবং মুছে ফেলার ফাংশন
+  function removeFloatingBubbles() {
+    const connectedToTop = new Set();
+    const stack = [];
+
+    // উপরের সারির বাবলগুলো স্ট্যাকে যোগ করা
+    for (const bubble of bubbles) {
+      if (bubble.y <= dropDistance + bubbleRadius + 1) { // টপ রো এর আশেপাশে
+        stack.push(bubble);
+        connectedToTop.add(bubble);
+      }
+    }
+
+    // DFS/BFS ব্যবহার করে সংযুক্ত বাবলগুলো খুঁজে বের করা
+    while (stack.length > 0) {
+      const currentBubble = stack.pop();
+      for (const otherBubble of bubbles) {
+        if (!connectedToTop.has(otherBubble)) {
+          const dx = currentBubble.x - otherBubble.x;
+          const dy = currentBubble.y - otherBubble.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < bubbleRadius * 2 - 1) {
+            stack.push(otherBubble);
+            connectedToTop.add(otherBubble);
+          }
+        }
+      }
+    }
+
+    // যে বাবলগুলো সংযুক্ত নয়, সেগুলো মুছে ফেলা
+    const floatingBubbles = bubbles.filter(bubble => !connectedToTop.has(bubble));
+    if (floatingBubbles.length > 0) {
+      bubbles = bubbles.filter(bubble => connectedToTop.has(bubble));
+      currentScore += floatingBubbles.length * 10;
+    }
+  }
+
+  function drawBubbles() {
+    for (const bubble of bubbles) {
+      ctx.beginPath();
+      ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+      ctx.fillStyle = bubble.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  function drawShooter() {
+    ctx.beginPath();
+    ctx.arc(shooterBubble.x, shooterBubble.y, shooterBubble.radius, 0, Math.PI * 2);
+    ctx.fillStyle = shooterBubble.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function shootBubble(e) {
+    if (!gameActive || shooterBubble.isShot) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const angle = Math.atan2(clickY - shooterBubble.y, clickX - shooterBubble.x);
+    const speed = 10;
+    
+    shooterBubble.speedX = Math.cos(angle) * speed;
+    shooterBubble.speedY = Math.sin(angle) * speed;
+    shooterBubble.isShot = true;
+  }
+
+  function dropBubbles() {
+    for (const bubble of bubbles) {
+      bubble.y += dropDistance;
+    }
+  }
+  
+  function checkForGameOver() {
+    for (const bubble of bubbles) {
+      if (bubble.y + bubble.radius >= canvas.height - 30) {
+        endGame();
+        break;
+      }
+    }
+  }
+  
+  window.onload = () => {
+    checkLoginStatus();
+    const homeButton = document.querySelector('nav button:first-child');
+    if (homeButton) {
+      showSection('home', homeButton);
+    }
+  };
+</script>
