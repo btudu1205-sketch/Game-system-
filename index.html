@@ -14,6 +14,7 @@
             height: 100vh;
             background-color: #f0f0f0;
             margin: 0;
+            user-select: none; /* Prevent text selection */
         }
 
         .game-container {
@@ -38,11 +39,11 @@
             width: 40px;
             height: 40px;
             border: 1px solid #999;
-            box-sizing: border-box; /* Ensures padding/border doesn't affect total size */
+            box-sizing: border-box;
         }
 
         .cell.filled {
-            background-color: #3498db; /* Filled block color */
+            background-color: #3498db;
         }
 
         .sidebar {
@@ -50,10 +51,52 @@
             padding: 10px;
             background-color: #eee;
             border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         #next-blocks {
             margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .block-option {
+            display: grid;
+            cursor: grab;
+            border: 2px solid #aaa;
+            padding: 5px;
+            background-color: #ddd;
+            border-radius: 5px;
+        }
+        
+        .block-option.dragging {
+            opacity: 0.7;
+            cursor: grabbing;
+        }
+        
+        .block-cell {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #999;
+            background-color: #3498db;
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            display: none;
         }
     </style>
 </head>
@@ -62,20 +105,41 @@
     <div class="game-container">
         <div id="game-board"></div>
         <div class="sidebar">
-            <p>স্কোর: <span id="score">0</span></p>
-            <div id="next-blocks"></div>
+            <div>
+                <p>স্কোর: <span id="score">0</span></p>
+            </div>
+            <div id="next-blocks">
+                <p>পরবর্তী ব্লক:</p>
+            </div>
         </div>
+    </div>
+    <div id="game-over-message" class="message">
+        <p>গেম শেষ!</p>
+        <p>আপনার স্কোর: <span id="final-score">0</span></p>
+        <button onclick="window.location.reload()">আবার শুরু করুন</button>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const board = document.getElementById('game-board');
             const scoreDisplay = document.getElementById('score');
+            const nextBlocksContainer = document.getElementById('next-blocks');
+            const gameOverMessage = document.getElementById('game-over-message');
+            const finalScoreDisplay = document.getElementById('final-score');
+
             const boardSize = 8;
             let grid = [];
             let score = 0;
+            const blockShapes = [
+                { shape: [[1]], color: '#e74c3c' }, // 1x1
+                { shape: [[1, 1, 1]], color: '#3498db' }, // 1x3
+                { shape: [[1], [1], [1]], color: '#2ecc71' }, // 3x1
+                { shape: [[1, 1], [1, 1]], color: '#f1c40f' }, // 2x2
+                { shape: [[1, 1, 1], [0, 1, 0]], color: '#9b59b6' }, // T-shape
+            ];
+            let currentBlock = null;
+            let currentBlockElement = null;
 
-            // গেম বোর্ড তৈরি করা
             function createBoard() {
                 for (let i = 0; i < boardSize; i++) {
                     grid[i] = [];
@@ -85,22 +149,48 @@
                         cell.dataset.x = j;
                         cell.dataset.y = i;
                         board.appendChild(cell);
-                        grid[i][j] = 0; // 0 = খালি সেল
+                        grid[i][j] = 0;
                     }
                 }
             }
 
-            // একটি সারি বা কলাম পূর্ণ হয়েছে কিনা তা চেক করার ফাংশন
+            function generateNewBlocks() {
+                nextBlocksContainer.innerHTML = '<p>পরবর্তী ব্লক:</p>';
+                for (let i = 0; i < 3; i++) {
+                    const randomBlock = blockShapes[Math.floor(Math.random() * blockShapes.length)];
+                    createBlockOption(randomBlock);
+                }
+            }
+
+            function createBlockOption(blockData) {
+                const blockOption = document.createElement('div');
+                blockOption.classList.add('block-option');
+                blockOption.dataset.shape = JSON.stringify(blockData.shape);
+                blockOption.dataset.color = blockData.color;
+                blockOption.style.gridTemplateColumns = `repeat(${blockData.shape[0].length}, 20px)`;
+                blockData.shape.forEach(row => {
+                    row.forEach(cellValue => {
+                        const blockCell = document.createElement('div');
+                        if (cellValue === 1) {
+                            blockCell.classList.add('block-cell');
+                            blockCell.style.backgroundColor = blockData.color;
+                        }
+                        blockOption.appendChild(blockCell);
+                    });
+                });
+                blockOption.draggable = true;
+                nextBlocksContainer.appendChild(blockOption);
+            }
+
             function checkAndClearLines() {
                 let linesCleared = 0;
-                
+                let cellsToClear = [];
+
                 // সারি চেক করা
                 for (let i = 0; i < boardSize; i++) {
                     if (grid[i].every(cell => cell === 1)) {
                         for (let j = 0; j < boardSize; j++) {
-                            grid[i][j] = 0;
-                            const cellElement = board.querySelector(`[data-x="${j}"][data-y="${i}"]`);
-                            cellElement.classList.remove('filled');
+                            cellsToClear.push({x: j, y: i});
                         }
                         linesCleared++;
                     }
@@ -117,38 +207,148 @@
                     }
                     if (columnIsFull) {
                         for (let i = 0; i < boardSize; i++) {
-                            grid[i][j] = 0;
-                            const cellElement = board.querySelector(`[data-x="${j}"][data-y="${i}"]`);
-                            cellElement.classList.remove('filled');
+                            cellsToClear.push({x: j, y: i});
                         }
                         linesCleared++;
                     }
                 }
                 
                 if (linesCleared > 0) {
+                    cellsToClear.forEach(pos => {
+                        grid[pos.y][pos.x] = 0;
+                        const cellElement = board.querySelector(`[data-x="${pos.x}"][data-y="${pos.y}"]`);
+                        cellElement.classList.remove('filled');
+                        cellElement.style.backgroundColor = '';
+                    });
                     score += linesCleared * 100;
                     scoreDisplay.textContent = score;
                 }
             }
+
+            function placeBlock(block, startX, startY, color) {
+                const shape = JSON.parse(block.dataset.shape);
+                for (let i = 0; i < shape.length; i++) {
+                    for (let j = 0; j < shape[i].length; j++) {
+                        if (shape[i][j] === 1) {
+                            const x = startX + j;
+                            const y = startY + i;
+                            if (x < boardSize && y < boardSize && grid[y][x] === 0) {
+                                grid[y][x] = 1;
+                                const cellElement = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                                cellElement.classList.add('filled');
+                                cellElement.style.backgroundColor = color;
+                            } else {
+                                // Invalid placement, remove the placed cells and return false
+                                for (let ii = 0; ii < i; ii++) {
+                                    for (let jj = 0; jj < shape[ii].length; jj++) {
+                                        if (shape[ii][jj] === 1) {
+                                            const prevX = startX + jj;
+                                            const prevY = startY + ii;
+                                            grid[prevY][prevX] = 0;
+                                            const prevCellElement = board.querySelector(`[data-x="${prevX}"][data-y="${prevY}"]`);
+                                            prevCellElement.classList.remove('filled');
+                                            prevCellElement.style.backgroundColor = '';
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+
+            function canPlaceBlock(block, startX, startY) {
+                const shape = JSON.parse(block.dataset.shape);
+                for (let i = 0; i < shape.length; i++) {
+                    for (let j = 0; j < shape[i].length; j++) {
+                        if (shape[i][j] === 1) {
+                            const x = startX + j;
+                            const y = startY + i;
+                            if (x >= boardSize || y >= boardSize || grid[y][x] !== 0) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
             
-            createBoard();
-            
-            // সেল-এ ক্লিক করে ব্লক বসানোর লজিক
-            board.addEventListener('click', (e) => {
-                const cell = e.target;
-                if (cell.classList.contains('cell')) {
-                    const x = parseInt(cell.dataset.x);
-                    const y = parseInt(cell.dataset.y);
-                    
-                    if (grid[y][x] === 0) {
-                        cell.classList.add('filled');
-                        grid[y][x] = 1;
-                        score += 10;
-                        scoreDisplay.textContent = score;
-                        checkAndClearLines(); // লাইন চেক করা
+            function checkGameOver() {
+                const remainingBlocks = document.querySelectorAll('.block-option');
+                let canPlaceAnyBlock = false;
+
+                remainingBlocks.forEach(block => {
+                    const shape = JSON.parse(block.dataset.shape);
+                    for (let i = 0; i < boardSize; i++) {
+                        for (let j = 0; j < boardSize; j++) {
+                            if (canPlaceBlock(block, j, i)) {
+                                canPlaceAnyBlock = true;
+                                break;
+                            }
+                        }
+                        if (canPlaceAnyBlock) break;
+                    }
+                });
+
+                if (!canPlaceAnyBlock) {
+                    finalScoreDisplay.textContent = score;
+                    gameOverMessage.style.display = 'block';
+                }
+            }
+
+            // ইভেন্ট লিসেনার্স
+            board.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.target.classList.add('drag-over');
+            });
+
+            board.addEventListener('dragleave', (e) => {
+                e.target.classList.remove('drag-over');
+            });
+
+            board.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.target.classList.remove('drag-over');
+                
+                if (currentBlock) {
+                    const x = parseInt(e.target.dataset.x);
+                    const y = parseInt(e.target.dataset.y);
+                    const color = currentBlock.dataset.color;
+
+                    if (canPlaceBlock(currentBlock, x, y)) {
+                        placeBlock(currentBlock, x, y, color);
+                        currentBlock.remove();
+                        checkAndClearLines();
+                        
+                        if (document.querySelectorAll('.block-option').length === 0) {
+                            generateNewBlocks();
+                        } else {
+                             checkGameOver();
+                        }
                     }
                 }
             });
+
+            nextBlocksContainer.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('block-option')) {
+                    currentBlock = e.target;
+                    e.dataTransfer.setData('text/plain', '');
+                    currentBlockElement = e.target.cloneNode(true);
+                    currentBlock.classList.add('dragging');
+                }
+            });
+
+            nextBlocksContainer.addEventListener('dragend', (e) => {
+                if (currentBlock) {
+                    currentBlock.classList.remove('dragging');
+                    currentBlock = null;
+                }
+            });
+
+            createBoard();
+            generateNewBlocks();
         });
     </script>
 </body>
