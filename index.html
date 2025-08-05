@@ -1,1204 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Monetag Earn Bot</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #28a745;
-            --secondary-color: #007bff;
-            --accent-color: #ffc107;
-            --background-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #343a40;
-            --light-text-color: #6c757d;
-            --border-radius: 12px;
-            --shadow: 0 5px 20px rgba(0,0,0,0.08);
-            --transition-speed: 0.3s;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            background: var(--background-color);
-            color: var(--text-color);
-            padding-bottom: 80px;
-        }
-        
-        .container {
-            padding: 20px;
-            max-width: 550px;
-            margin: auto;
-        }
-
-        /* --- Navigation Bar --- */
-        nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            max-width: 550px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-            justify-content: space-around;
-            background: var(--card-bg);
-            border-top: 1px solid #e9ecef;
-            z-index: 1000;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
-            border-radius: 15px 15px 0 0;
-        }
-        nav button {
-            flex: 1;
-            padding: 12px 0;
-            font-size: 11px;
-            background: none;
-            border: none;
-            color: var(--light-text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: color var(--transition-speed) ease, transform 0.2s ease;
-            position: relative;
-            cursor: pointer;
-        }
-        nav button:hover {
-            color: var(--primary-color);
-        }
-        nav button.active-nav {
-            color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-        nav button.active-nav i {
-            transform: scale(1.1);
-        }
-        nav button i {
-            font-size: 22px;
-            margin-bottom: 4px;
-            transition: transform var(--transition-speed) ease;
-        }
-
-        /* --- Sections --- */
-        .section {
-            display: none;
-            animation: fadeIn 0.6s ease-in-out;
-            padding: 20px;
-        }
-        .section.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Cards and UI Components --- */
-        .card {
-            background: var(--card-bg);
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform var(--transition-speed) ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card h3 {
-            margin: 0;
-            font-size: 16px;
-            color: var(--light-text-color);
-        }
-        .card .value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 16px;
-            font-size: 16px;
-            border: none;
-            border-radius: var(--border-radius);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background-color var(--transition-speed) ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn:active {
-            transform: scale(0.98);
-        }
-        .btn-primary { background: var(--primary-color); }
-        .btn-primary:hover { background: #218838; }
-        .btn-secondary { background: var(--secondary-color); }
-        .btn-secondary:hover { background: #0069d9; }
-        .btn-admin { background: #FF9800; }
-        .btn-admin:hover { background: #e68a00; }
-        .btn-owner { background: #dc3545; }
-        .btn-owner:hover { background: #c82333; }
-        .btn-terms { background: #6c757d; }
-        .btn-terms:hover { background: #5a6268; }
-
-        input {
-            width: calc(100% - 24px);
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: var(--border-radius);
-            border: 1px solid #dee2e6;
-            font-size: 16px;
-            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
-        }
-
-        h2 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 25px;
-            font-size: 24px;
-            font-weight: 700;
-        }
-        .icon {
-            margin-right: 10px;
-        }
-
-        .task-item {
-            background: #e9f5e9;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .task-item span {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        .task-item .btn {
-            margin-top: 10px;
-        }
-        .task-item form {
-            margin-top: 15px;
-        }
-
-        .auth-container {
-            max-width: 450px;
-            margin: 50px auto;
-            padding: 30px;
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            text-align: center;
-        }
-        .auth-container p {
-            margin-top: 20px;
-            color: var(--light-text-color);
-        }
-        .auth-container a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .auth-container a:hover {
-            text-decoration: underline;
-        }
-
-        .hidden { display: none !important; }
-
-        /* --- Modal Styling --- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            padding-top: 60px;
-            animation: fadeInModal 0.3s;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: var(--border-radius);
-            width: 80%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: slideIn 0.4s ease-out;
-        }
-        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .close-btn {
-            color: #aaa;
-            float: right;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        .close-btn:hover, .close-btn:focus { color: #333; text-decoration: none; }
-
-        .modal-content input {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 24px;
-            letter-spacing: 5px;
-            font-weight: 600;
-        }
-
-        /* --- Game Card Styling --- */
-        .game-card {
-            background-color: #e9ecef;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: transform var(--transition-speed) ease;
-        }
-        .game-card:hover {
-            transform: scale(1.02);
-            background-color: #e2e6ea;
-        }
-        .game-card h4 {
-            margin: 0;
-            font-size: 18px;
-            color: var(--text-color);
-        }
-        .game-card .btn-play {
-            background: var(--secondary-color);
-            color: white;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-        .game-card .btn-play:hover {
-            background: #0069d9;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Monetag Earn Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding-bottom: 70px;
+    }
+    .section {
+      display: none;
+      padding: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .btn {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background-color: #2196F3;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 500px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      border-top: 1px solid #ccc;
+      z-index: 1000;
+      padding: 10px 0;
+    }
+    nav button {
+      background: none;
+      border: none;
+      font-size: 10px;
+      color: #777;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    nav button.active-nav {
+      color: #4CAF50;
+    }
+    nav button i {
+      font-size: 20px;
+    }
+  </style>
 </head>
 <body>
 
-<div id="authSections">
-    <div id="registerSection" class="auth-container">
-        <h2><i class="fas fa-user-plus"></i> Register</h2>
-        <form id="registerForm" onsubmit="handleRegistration(event)">
-            <input type="text" id="reg_username" placeholder="Telegram Username (@username)" required>
-            <input type="password" id="reg_password" placeholder="Password (min 8 characters)" required>
-            <input type="text" id="reg_chat_id" placeholder="Telegram Chat ID (10 digits)" required>
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
-        <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
-    </div>
-
-    <div id="loginSection" class="auth-container hidden">
-        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <input type="text" id="login_username" placeholder="Telegram Username" required>
-            <input type="password" id="login_password" placeholder="Password" required>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-        <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
-    </div>
-</div>
-
-<div id="verificationModal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeModal()">&times;</span>
-    <h2>Enter Verification Code</h2>
-    <p>We've sent a 4-digit code to your Telegram.</p>
-    <form onsubmit="verifyCode(event)">
-      <input type="text" id="verificationCodeInput" maxlength="4" required>
-      <button type="submit" class="btn btn-primary">Verify</button>
-    </form>
-  </div>
-</div>
-
-<div id="mainApp" class="container hidden">
+<div id="mainApp">
+  <!-- Dashboard Section -->
   <div id="home" class="section active">
-    <h2><i class="fas fa-home icon"></i>Dashboard</h2>
-    <div class="card">
-      <h3>Balance</h3>
-      <span class="value" id="balance">0</span>
-    </div>
-    <div class="card">
-      <h3>Total Withdraw</h3>
-      <span class="value" id="withdraw">0</span>
-    </div>
-    <div class="card">
-      <h3>Total Tasks</h3>
-      <span class="value" id="tasks">0</span>
-    </div>
-    <div class="card">
-      <h3>Ads Watched</h3>
-      <span class="value" id="ads">0</span>
-    </div>
+    <h2><i class="fas fa-home icon"></i> Dashboard</h2>
+    <div class="card"><h3>Balance</h3><span class="value" id="balance">0</span></div>
+    <div class="card"><h3>Total Withdraw</h3><span class="value">0</span></div>
+    <div class="card"><h3>Total Tasks</h3><span class="value">0</span></div>
+    <div class="card"><h3>Ads Watched</h3><span class="value">0</span></div>
   </div>
 
+  <!-- Earn Section -->
   <div id="earn" class="section">
-    <h2><i class="fas fa-dollar-sign icon"></i>Earn</h2>
-    <button class="btn btn-primary" onclick="showRewardedAd()"><i class="fas fa-video icon"></i>Watch Ads</button>
-    <button class="btn btn-secondary" onclick="showTasks()"><i class="fas fa-tasks icon"></i>Complete Tasks</button>
-    <div id="taskList" style="margin-top: 20px;"></div>
+    <h2><i class="fas fa-dollar-sign icon"></i> Earn</h2>
+    <div class="card">
+      <h3>Watch Ads</h3>
+      <button class="btn btn-secondary">Watch Now</button>
+    </div>
   </div>
 
+  <!-- Withdraw Section -->
   <div id="withdrawSection" class="section">
-    <h2><i class="fas fa-wallet icon"></i>Withdraw</h2>
-    <form onsubmit="submitWithdraw(event)">
-      <input type="text" id="number" placeholder="Your Number (Bkash/Nagad)" required>
-      <input type="number" id="amount" placeholder="Amount" required>
-      <button type="submit" class="btn btn-primary">Submit Withdraw</button>
-    </form>
-  </div>
-
-  <div id="gameSection" class="section">
-    <h2><i class="fas fa-gamepad icon"></i>Game Play</h2>
-    <div class="game-card">
-      <h4>Game 1: Bubble Shooter</h4>
-      <button class="btn-play" onclick="openGamePage()">Play</button>
-    </div>
-    <div class="game-card">
-      <h4>Game 2: Guess the Number</h4>
-      <button class="btn-play" onclick="alert('Starting game: Guess the Number.')">Play</button>
-    </div>
-    <div class="game-card">
-      <h4>Game 3: Tap Challenge</h4>
-      <button class="btn-play" onclick="alert('Starting game: Tap Challenge.')">Play</button>
+    <h2><i class="fas fa-wallet icon"></i> Withdraw</h2>
+    <div class="card">
+      <input type="text" placeholder="Number">
+      <input type="number" placeholder="Amount">
+      <button class="btn btn-secondary">Submit</button>
     </div>
   </div>
 
+  <!-- Support Section -->
   <div id="context" class="section">
-    <h2><i class="fas fa-headset icon"></i>Support & Info</h2>
-    <a href="https://t.me/admin_link_here" target="_blank" style="text-decoration: none;">
-      <button class="btn btn-admin"><i class="fab fa-telegram-plane icon"></i>Admin Support</button>
-    </a>
-    <a href="https://t.me/owner_link_here" target="_blank" style="text-decoration: none;">
-      <button class="btn btn-owner"><i class="fab fa-telegram-plane icon"></i>Owner Support</button>
-    </a>
-    <a href="https://example.com/terms" target="_blank" style="text-decoration: none;">
-      <button class="btn btn-terms"><i class="fas fa-file-contract icon"></i>Terms & Conditions</button>
-    </a>
+    <h2><i class="fas fa-headset icon"></i> Support</h2>
+    <div class="card">
+      <a href="https://t.me/admin_link_here" target="_blank"><button class="btn btn-secondary">Admin Support</button></a><br><br>
+      <a href="https://t.me/owner_link_here" target="_blank"><button class="btn btn-secondary">Owner Support</button></a>
+    </div>
   </div>
 
+  <!-- Profile Section -->
   <div id="profile" class="section">
-    <h2><i class="fas fa-user-circle icon"></i>Profile</h2>
+    <h2><i class="fas fa-user-circle icon"></i> Profile</h2>
+    <div class="card"><h3>Username</h3><span class="value">Guest</span></div>
+    <div class="card"><h3>Total Withdraw</h3><span class="value">0</span></div>
+    <div class="card"><h3>Total Tasks</h3><span class="value">0</span></div>
+    <div class="card"><h3>Total Ads Watched</h3><span class="value">0</span></div>
+  </div>
+
+  <!-- ✅ Game Section -->
+  <div id="gameSection" class="section">
+    <h2><i class="fas fa-gamepad icon"></i> Play Game</h2>
     <div class="card">
-      <h3>Username</h3>
-      <span class="value" id="profileUsername"><b>Guest</b></span>
-    </div>
-    <div class="card">
-      <h3>Total Withdraw</h3>
-      <span class="value" id="profileWithdraw">0</span>
-    </div>
-    <div class="card">
-      <h3>Total Tasks</h3>
-      <span class="value" id="profileTasks">0</span>
-    </div>
-    <div class="card">
-      <h3>Total Ads Watched</h3>
-      <span class="value" id="profileAds">0</span>
+      <h3>Mini Puzzle Challenge</h3>
+      <p>Play a fun puzzle game and earn points if you complete it!</p>
+      <a href="https://games.crazygames.com/en_US/candy-crush" target="_blank" style="text-decoration:none;">
+        <button class="btn btn-secondary"><i class="fas fa-play-circle"></i> Play Now</button>
+      </a>
     </div>
   </div>
 </div>
 
+<!-- ✅ Navigation Menu -->
 <nav id="appNav">
   <button onclick="showSection('home', this)" class="active-nav">
-    <i class="fas fa-home"></i>
-    <span>Home</span>
+    <i class="fas fa-home"></i><span>Home</span>
   </button>
   <button onclick="showSection('earn', this)">
-    <i class="fas fa-dollar-sign"></i>
-    <span>Earn</span>
+    <i class="fas fa-dollar-sign"></i><span>Earn</span>
   </button>
   <button onclick="showSection('withdrawSection', this)">
-    <i class="fas fa-wallet"></i>
-    <span>Withdraw</span>
-  </button>
-  <button onclick="showSection('gameSection', this)">
-    <i class="fas fa-gamepad"></i>
-    <span>Game Play</span>
+    <i class="fas fa-wallet"></i><span>Withdraw</span>
   </button>
   <button onclick="showSection('context', this)">
-    <i class="fas fa-headset"></i>
-    <span>Support</span>
+    <i class="fas fa-headset"></i><span>Support</span>
   </button>
   <button onclick="showSection('profile', this)">
-    <i class="fas fa-user-circle"></i>
-    <span>Profile</span>
+    <i class="fas fa-user-circle"></i><span>Profile</span>
+  </button>
+  <button onclick="showSection('gameSection', this)">
+    <i class="fas fa-gamepad"></i><span>Game</span>
   </button>
 </nav>
 
+<!-- ✅ Section Controller Script -->
 <script>
-  const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
-  const CHAT_ID = 'YOUR_CHAT_ID_HERE';
-
-  let currentUsername = localStorage.getItem('currentUsername') || null;
-  let verificationCode = null;
-  let tempUserData = {};
-  
-  function sendTelegramNotification(chatId, message) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if (!data.ok) {
-          console.error("Failed to send Telegram message:", data.description);
-        }
-      })
-      .catch(error => {
-        console.error("Error sending Telegram message:", error);
-      });
-  }
-
-  function sendTelegramImageNotification(chatId, imageFile, caption) {
-    const formData = new FormData();
-    formData.append('chat_id', chatId);
-    formData.append('photo', imageFile);
-    formData.append('caption', caption);
-
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
-
-    fetch(url, {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (!data.ok) {
-        console.error("Failed to send image:", data.description);
-      }
-    })
-    .catch(error => {
-      console.error("Error sending image:", error);
-    });
-  }
-
-  function showModal() {
-    document.getElementById('verificationModal').style.display = 'flex';
-  }
-  function closeModal() {
-    document.getElementById('verificationModal').style.display = 'none';
-  }
-
-  function checkLoginStatus() {
-    if (currentUsername) {
-      document.getElementById('authSections').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-      document.getElementById('appNav').style.display = 'flex';
-      loadUserData(currentUsername);
-    } else {
-      document.getElementById('authSections').classList.remove('hidden');
-      document.getElementById('mainApp').classList.add('hidden');
-      document.getElementById('appNav').style.display = 'none';
-    }
-  }
-
-  function showLogin() {
-    document.getElementById('loginSection').classList.remove('hidden');
-    document.getElementById('registerSection').classList.add('hidden');
-  }
-
-  function showRegister() {
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('registerSection').classList.remove('hidden');
-  }
-
-  function handleRegistration(e) {
-    e.preventDefault();
-    const username = document.getElementById('reg_username').value;
-    const password = document.getElementById('reg_password').value;
-    const telegramChatId = document.getElementById('reg_chat_id').value;
-    
-    if (!username.startsWith('@')) {
-        alert("❌ Username must start with '@'.");
-        return;
-    }
-    if (password.length < 8) {
-        alert("❌ Password must be at least 8 characters long.");
-        return;
-    }
-    if (telegramChatId.length !== 10 || isNaN(telegramChatId)) {
-        alert("❌ Telegram Chat ID must be a 10-digit number.");
-        return;
-    }
-    
-    if (localStorage.getItem(username)) {
-      alert("❌ This username is already taken!");
-      return;
-    }
-    
-    verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-    sendTelegramNotification(telegramChatId, `Your verification code is: <b>${verificationCode}</b>`);
-    
-    tempUserData = {
-      username: username,
-      password: password,
-      chatId: telegramChatId,
-      balance: 0,
-      withdraw: 0,
-      tasks: 0,
-      ads: 0
-    };
-    
-    showModal();
-  }
-  
-  function verifyCode(e) {
-    e.preventDefault();
-    const submittedCode = document.getElementById('verificationCodeInput').value;
-    
-    if (submittedCode === verificationCode) {
-      localStorage.setItem(tempUserData.username, JSON.stringify(tempUserData));
-      alert("✅ Registration successful! Please log in.");
-      closeModal();
-      showLogin();
-      verificationCode = null;
-      tempUserData = {};
-      document.getElementById('verificationCodeInput').value = '';
-    } else {
-      alert("❌ Incorrect verification code.");
-    }
-  }
-
-  function handleLogin(e) {
-    e.preventDefault();
-    const username = document.getElementById('login_username').value;
-    const password = document.getElementById('login_password').value;
-    
-    const userData = JSON.parse(localStorage.getItem(username));
-    if (userData && userData.password === password) {
-      currentUsername = username;
-      localStorage.setItem('currentUsername', username);
-      checkLoginStatus();
-    } else {
-      alert("❌ Invalid username or password.");
-    }
-  }
-
-  let balance, withdraw, tasks, ads;
-  let currentUserChatId;
-
-  function loadUserData(username) {
-    const userData = JSON.parse(localStorage.getItem(username));
-    if (userData) {
-      balance = userData.balance;
-      withdraw = userData.withdraw;
-      tasks = userData.tasks;
-      ads = userData.ads;
-      currentUserChatId = userData.chatId;
-      document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
-      updateUI();
-    } else {
-        alert("User data not found. Please log in again.");
-        logout();
-    }
-  }
-  
-  function logout() {
-      localStorage.removeItem('currentUsername');
-      location.reload();
-  }
-
-  function updateUI() {
-    document.getElementById("balance").innerText = balance;
-    document.getElementById("withdraw").innerText = withdraw;
-    document.getElementById("tasks").innerText = tasks;
-    document.getElementById("ads").innerText = ads;
-    document.getElementById("profileWithdraw").innerText = withdraw;
-    document.getElementById("profileTasks").innerText = tasks;
-    document.getElementById("profileAds").innerText = ads;
-  }
-
-  function saveData() {
-    if (currentUsername) {
-      const userData = {
-        username: currentUsername,
-        password: JSON.parse(localStorage.getItem(currentUsername)).password,
-        chatId: currentUserChatId,
-        balance: balance,
-        withdraw: withdraw,
-        tasks: tasks,
-        ads: ads
-      };
-      localStorage.setItem(currentUsername, JSON.stringify(userData));
-    }
-  }
-  
   function showSection(id, element) {
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
-    
+
     document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
     element.classList.add("active-nav");
-    
-    updateUI();
   }
-
-  function showRewardedAd() {
-    alert("Simulating ad view... Please wait.");
-    setTimeout(() => {
-        balance += 10;
-        ads += 1;
-        saveData();
-        alert("✅ You earned 10 points!");
-        updateUI();
-    }, 1500);
-  }
-
-  function showTasks() {
-    var html = `
-      <div class="task-item">
-        <span><b>Task 1:</b> Subscribe to our Telegram Channel.</span>
-        <a href="https://t.me/your_channel_link" target="_blank" class="btn btn-secondary">
-          <i class="fab fa-telegram"></i>Go to Task
-        </a>
-        <form onsubmit="submitTask(event, 5, 'Telegram Channel')">
-          <input type="file" accept="image/*" required>
-          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
-        </form>
-      </div>
-      <div class="task-item">
-        <span><b>Task 2:</b> Join our Discord Group.</span>
-        <a href="https://discord.gg/your_discord_link" target="_blank" class="btn btn-secondary">
-          <i class="fab fa-discord"></i>Go to Task
-        </a>
-        <form onsubmit="submitTask(event, 5, 'Discord Group')">
-          <input type="file" accept="image/*" required>
-          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
-        </form>
-      </div>
-      <div class="task-item">
-        <span><b>Task 3:</b> Follow us on Twitter.</span>
-        <a href="https://twitter.com/your_twitter_profile" target="_blank" class="btn btn-secondary">
-          <i class="fab fa-twitter"></i>Go to Task
-        </a>
-        <form onsubmit="submitTask(event, 5, 'Twitter Follow')">
-          <input type="file" accept="image/*" required>
-          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
-        </form>
-      </div>
-      <div class="task-item">
-        <span><b>Task 4:</b> Like our Facebook Page.</span>
-        <a href="https://facebook.com/your_page" target="_blank" class="btn btn-secondary">
-          <i class="fab fa-facebook"></i>Go to Task
-        </a>
-        <form onsubmit="submitTask(event, 5, 'Facebook Page')">
-          <input type="file" accept="image/*" required>
-          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
-        </form>
-      </div>
-      <div class="task-item">
-        <span><b>Task 5:</b> Visit our Website.</span>
-        <a href="https://example.com" target="_blank" class="btn btn-secondary">
-          <i class="fas fa-globe"></i>Go to Task
-        </a>
-        <form onsubmit="submitTask(event, 5, 'Website Visit')">
-          <input type="file" accept="image/*" required>
-          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
-        </form>
-      </div>
-    `;
-    document.getElementById("taskList").innerHTML = html;
-  }
-
-  function submitTask(e, points, taskName) {
-    e.preventDefault();
-    const fileInput = e.target.querySelector('input[type="file"]');
-    const file = fileInput.files[0];
-    
-    tasks += 1;
-    balance += points;
-    saveData();
-    
-    alert("📷 Screenshot submitted. You earned " + points + " points!");
-    updateUI();
-
-    const caption = `<b>New Task Submission!</b>\n<b>User:</b> ${currentUsername}\n<b>Task Name:</b> ${taskName}`;
-    sendTelegramImageNotification(CHAT_ID, file, caption);
-  }
-
-  function submitWithdraw(e) {
-    e.preventDefault();
-    const amount = parseInt(document.getElementById("amount").value);
-    const number = document.getElementById("number").value;
-    
-    if (amount > balance) {
-      alert("❌ Not enough balance.");
-      return;
-    }
-    
-    withdraw += amount;
-    balance -= amount;
-    saveData();
-    
-    alert("✅ Withdraw submitted! Remaining balance: " + balance + ".");
-    updateUI();
-    document.getElementById("number").value = '';
-    document.getElementById("amount").value = '';
-
-    const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${currentUsername}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>Chat ID:</b> ${currentUserChatId}`;
-    sendTelegramNotification(CHAT_ID, withdrawMessage);
-  }
-  
-  function openGamePage() {
-    if (!currentUsername) {
-        alert("Please login to play games.");
-        return;
-    }
-    const gameHtml = getGamePageHtml();
-    const gameUrl = `data:text/html,${encodeURIComponent(gameHtml)}`;
-    window.open(gameUrl, '_blank', 'noopener=yes');
-  }
-
-  function getGamePageHtml() {
-    return `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Bubble Shooter Game</title>
-          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-          <style>
-              body {
-                  font-family: 'Poppins', sans-serif;
-                  background-color: #f0f2f5;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 100vh;
-                  margin: 0;
-                  flex-direction: column;
-                  color: #333;
-              }
-              .game-container {
-                  background: #fff;
-                  border-radius: 15px;
-                  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-                  padding: 20px;
-                  text-align: center;
-              }
-              h1 {
-                  color: #28a745;
-              }
-              #gameCanvas {
-                  background: #e0f7fa;
-                  border: 2px solid #00796b;
-                  border-radius: 12px;
-                  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                  touch-action: none;
-              }
-              .game-info {
-                  display: flex;
-                  justify-content: space-between;
-                  width: 360px;
-                  margin: 10px auto;
-                  font-weight: bold;
-              }
-              .controls {
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  margin-top: 10px;
-              }
-              .controls button {
-                  background: #dc3545;
-                  color: white;
-                  padding: 10px 20px;
-                  border: none;
-                  border-radius: 8px;
-                  cursor: pointer;
-                  font-weight: 600;
-                  margin: 0 5px;
-                  transition: background-color 0.3s;
-              }
-              .controls button:hover {
-                  background-color: #c82333;
-              }
-              .shooter-preview {
-                  width: 30px;
-                  height: 30px;
-                  border-radius: 50%;
-                  border: 2px solid #333;
-                  margin: 0 10px;
-              }
-          </style>
-      </head>
-      <body>
-          <div class="game-container">
-              <h1>Bubble Shooter</h1>
-              <div class="game-info">
-                  <span>Level: <span id="gameLevel">1</span></span>
-                  <span>Score: <span id="gameScore">0</span></span>
-              </div>
-              <canvas id="gameCanvas" width="360" height="500"></canvas>
-              <div class="controls">
-                  <button onclick="changeShooterColor()"><i class="fas fa-sync-alt"></i> Change Color</button>
-                  <div id="shooterColorPreview" class="shooter-preview"></div>
-                  <button onclick="endGame()"><i class="fas fa-times-circle"></i> End Game</button>
-              </div>
-          </div>
-          <script>
-              let gameInterval;
-              let canvas, ctx;
-              let bubbles = [];
-              let shooterBubble, nextShooterBubble;
-              let currentScore = 0;
-              let gameActive = false;
-              let currentLevel = 1;
-              let shotCount = 0;
-
-              const bubbleRadius = 15;
-              const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
-              const gridCols = 12;
-              const bubbleSpacing = 3;
-              const dropDistance = 20;
-              
-              const levelConfigs = [
-                { rows: 5, scoreToWin: 500 },
-                { rows: 6, scoreToWin: 1000 },
-                { rows: 7, scoreToWin: 1500 },
-              ];
-
-              function createBubbleGrid(rows) {
-                bubbles = [];
-                for (let row = 0; row < rows; row++) {
-                  for (let col = 0; col < gridCols; col++) {
-                    const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
-                    const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2);
-                    const y = row * (bubbleRadius * 2 + bubbleSpacing) + bubbleRadius;
-                    bubbles.push({ x, y, color, radius: bubbleRadius });
-                  }
-                }
-              }
-
-              function createShooterBubble() {
-                shooterBubble = {
-                  x: canvas.width / 2,
-                  y: canvas.height - 30,
-                  radius: bubbleRadius,
-                  color: getRandomColor(),
-                  isShot: false,
-                  speedX: 0,
-                  speedY: 0
-                };
-                nextShooterBubble = {
-                  x: canvas.width / 2,
-                  y: canvas.height - 30,
-                  radius: bubbleRadius,
-                  color: getRandomColor(),
-                };
-                updateShooterPreview();
-              }
-              
-              function getRandomColor() {
-                  return bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
-              }
-
-              function updateShooterPreview() {
-                const previewElement = document.getElementById('shooterColorPreview');
-                if(previewElement) {
-                   previewElement.style.backgroundColor = shooterBubble.color;
-                }
-              }
-
-              function startBubbleShooter() {
-                canvas = document.getElementById('gameCanvas');
-                ctx = canvas.getContext('2d');
-                canvas.addEventListener('click', shootBubble);
-                canvas.addEventListener('touchmove', handleTouchMove);
-                canvas.addEventListener('touchend', handleTouchEnd);
-
-                gameActive = true;
-                currentScore = 0;
-                currentLevel = 1;
-                shotCount = 0;
-                
-                loadLevel(currentLevel);
-                
-                gameInterval = setInterval(updateGame, 1000 / 60);
-              }
-
-              function loadLevel(level) {
-                const config = levelConfigs[level - 1];
-                if (!config) {
-                    alert("Congratulations! You have completed all levels! You win!");
-                    winGame();
-                    return;
-                }
-                createBubbleGrid(config.rows);
-                createShooterBubble();
-                document.getElementById('gameLevel').innerText = currentLevel;
-                document.getElementById('gameScore').innerText = currentScore;
-              }
-
-              function endGame() {
-                if (!gameActive) return;
-                clearInterval(gameInterval);
-                gameActive = false;
-                alert('You lose! Game Over!');
-                
-                const winPoints = Math.floor(currentScore / 100);
-                window.opener.postMessage({ type: 'game-result', score: currentScore, points: winPoints, status: 'lose' }, '*');
-                window.close();
-              }
-
-              function winGame() {
-                clearInterval(gameInterval);
-                gameActive = false;
-                alert('You win!');
-                const winPoints = Math.floor(currentScore / 50) + 100;
-                window.opener.postMessage({ type: 'game-result', score: currentScore, points: winPoints, status: 'win' }, '*');
-                window.close();
-              }
-              
-              function updateGame() {
-                if (!gameActive) return;
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                drawBubbles();
-                drawShooter();
-                
-                if (shooterBubble.isShot) {
-                  shooterBubble.x += shooterBubble.speedX;
-                  shooterBubble.y += shooterBubble.speedY;
-
-                  if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
-                    shooterBubble.speedX *= -1;
-                  }
-
-                  let collision = false;
-
-                  if (shooterBubble.y - shooterBubble.radius <= 0) {
-                    collision = true;
-                  } else {
-                    for (const bubble of bubbles) {
-                      const dx = shooterBubble.x - bubble.x;
-                      const dy = shooterBubble.y - bubble.y;
-                      const distance = Math.sqrt(dx * dx + dy * dy);
-
-                      if (distance < bubbleRadius * 2) {
-                        collision = true;
-                        break;
-                      }
-                    }
-                  }
-
-                  if (collision) {
-                      shooterBubble.isShot = false;
-
-                      const newBubble = { x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: bubbleRadius };
-                      bubbles.push(newBubble);
-                      
-                      const connected = findConnectedBubbles(newBubble);
-                      if (connected.length >= 3) {
-                        const fallingBubbles = connected.slice();
-                        bubbles = bubbles.filter(bubble => !connected.includes(bubble));
-                        currentScore += connected.length * 10;
-                        document.getElementById('gameScore').innerText = currentScore;
-                        
-                        startDroppingAnimation(fallingBubbles);
-                      }
-                      
-                      shooterBubble.color = nextShooterBubble.color;
-                      nextShooterBubble.color = getRandomColor();
-                      updateShooterPreview();
-
-                      shotCount++;
-                      if (shotCount % 1 === 0 && shotCount > 0) {
-                          dropBubbles();
-                      }
-                      
-                      if (bubbles.length === 0) {
-                          currentLevel++;
-                          alert(\`Level \${currentLevel-1} Complete!\`);
-                          if (currentLevel > levelConfigs.length) {
-                              winGame();
-                          } else {
-                              loadLevel(currentLevel);
-                          }
-                          return;
-                      }
-                  }
-                }
-                
-                checkForGameOver();
-              }
-              
-              function drawBubbles() {
-                for (const bubble of bubbles) {
-                  ctx.beginPath();
-                  const gradient = ctx.createRadialGradient(
-                    bubble.x, bubble.y, 0, 
-                    bubble.x, bubble.y, bubble.radius
-                  );
-                  gradient.addColorStop(0, 'white');
-                  gradient.addColorStop(0.5, bubble.color);
-                  gradient.addColorStop(1, bubble.color);
-                  ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-                  ctx.fillStyle = gradient;
-                  ctx.fill();
-                  ctx.closePath();
-                }
-              }
-
-              function drawShooter() {
-                ctx.beginPath();
-                ctx.arc(shooterBubble.x, shooterBubble.y, shooterBubble.radius, 0, Math.PI * 2);
-                ctx.fillStyle = shooterBubble.color;
-                ctx.fill();
-                ctx.closePath();
-              }
-              
-              function shootBubble(e) {
-                if (!gameActive || shooterBubble.isShot) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                const angle = Math.atan2(clickY - shooterBubble.y, clickX - shooterBubble.x);
-                const speed = 10;
-                
-                shooterBubble.speedX = Math.cos(angle) * speed;
-                shooterBubble.speedY = Math.sin(angle) * speed;
-                shooterBubble.isShot = true;
-              }
-              
-              function handleTouchMove(e) {
-                  e.preventDefault();
-              }
-              
-              function handleTouchEnd(e) {
-                  if (shooterBubble.isShot) return;
-                  const rect = canvas.getBoundingClientRect();
-                  const touch = e.changedTouches[0];
-                  const touchX = touch.clientX - rect.left;
-                  const touchY = touch.clientY - rect.top;
-                  
-                  const angle = Math.atan2(touchY - shooterBubble.y, touchX - shooterBubble.x);
-                  const speed = 10;
-                  shooterBubble.speedX = Math.cos(angle) * speed;
-                  shooterBubble.speedY = Math.sin(angle) * speed;
-                  shooterBubble.isShot = true;
-              }
-              
-              function changeShooterColor() {
-                  const tempColor = shooterBubble.color;
-                  shooterBubble.color = nextShooterBubble.color;
-                  nextShooterBubble.color = tempColor;
-                  updateShooterPreview();
-              }
-
-              function dropBubbles() {
-                for (const bubble of bubbles) {
-                  bubble.y += dropDistance;
-                }
-              }
-
-              function startDroppingAnimation(fallingBubbles) {
-              }
-              
-              function checkForGameOver() {
-                for (const bubble of bubbles) {
-                  if (bubble.y + bubble.radius >= canvas.height - 30) {
-                    endGame();
-                    break;
-                  }
-                }
-              }
-              
-              function findConnectedBubbles(startBubble) {
-                  const stack = [startBubble];
-                  const visited = new Set();
-                  const connected = [];
-
-                  while (stack.length > 0) {
-                      const currentBubble = stack.pop();
-                      const key = \`\${Math.round(currentBubble.x)},\${Math.round(currentBubble.y)}\`;
-
-                      if (visited.has(key)) continue;
-                      visited.add(key);
-
-                      if (currentBubble.color === startBubble.color) {
-                          connected.push(currentBubble);
-
-                          for (const otherBubble of bubbles) {
-                              if (otherBubble !== currentBubble && !visited.has(\`\${Math.round(otherBubble.x)},\${Math.round(otherBubble.y)}\`)) {
-                                  const dx = otherBubble.x - currentBubble.x;
-                                  const dy = otherBubble.y - currentBubble.y;
-                                  const distance = Math.sqrt(dx * dx + dy * dy);
-
-                                  if (distance < bubbleRadius * 2 + 5) {
-                                      stack.push(otherBubble);
-                                  }
-                              }
-                          }
-                      }
-                  }
-                  return connected;
-              }
-              
-              window.onload = startBubbleShooter;
-          </script>
-      </body>
-      </html>
-    `;
-  }
-  
-  window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'game-result') {
-        if (typeof balance === 'undefined') {
-            const userData = JSON.parse(localStorage.getItem(currentUsername));
-            if (userData) {
-                balance = userData.balance;
-            } else {
-                console.error("Could not load user data to update balance.");
-                return;
-            }
-        }
-        balance += event.data.points;
-        saveData();
-        updateUI();
-        alert(`Game finished! Your score was ${event.data.score}. You earned ${event.data.points} points. Status: ${event.data.status}.`);
-    }
-  });
-
-  window.onload = () => {
-    checkLoginStatus();
-    const homeButton = document.querySelector('nav button:first-child');
-    if (homeButton) {
-      showSection('home', homeButton);
-    }
-  };
 </script>
 
 </body>
