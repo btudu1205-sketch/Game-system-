@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>বাইক রেসিং গেম</title>
+    <title>ডিজিটাল বাইক রেসিং গেম</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         /* CSS কোড: গেমের ডিজাইন */
         body {
@@ -12,9 +13,9 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #34495e; /* গাঢ় ধূসর নীল ব্যাকগ্রাউন্ড */
+            background-color: #0d1a26; /* গাঢ় ডিজিটাল ব্যাকগ্রাউন্ড */
             color: #ecf0f1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Press Start 2P', cursive; /* ডিজিটাল ফন্ট */
             margin: 0;
             overflow: hidden;
             user-select: none;
@@ -25,16 +26,21 @@
             width: 95vw;
             max-width: 450px;
             height: 85vh;
-            background-color: #44607a;
-            border: 10px solid #2c3e50;
+            background-color: #1a2b3c;
+            border: 10px solid #00c6ff; /* নিয়ন নীল বর্ডার */
             border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 30px rgba(0, 198, 255, 0.7); /* নিয়ন গ্লো */
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             overflow: hidden;
+            
+            /* ডিজিটাল গ্রিড প্যাটার্ন */
+            background-image: linear-gradient(0deg, transparent 24px, rgba(0, 198, 255, 0.15) 25px),
+                              linear-gradient(90deg, transparent 24px, rgba(0, 198, 255, 0.15) 25px);
+            background-size: 25px 25px;
         }
 
         #game-area {
@@ -58,7 +64,8 @@
             animation: road-scroll 0.5s infinite linear;
         }
         #side-lines {
-            background-image: linear-gradient(to right, #ecf0f1 4px, transparent 4px), linear-gradient(to right, transparent 98%, #ecf0f1 98%);
+            background-image: linear-gradient(to right, #00ff62 4px, transparent 4px), linear-gradient(to right, transparent 98%, #00ff62 98%); /* নিয়ন সবুজ লাইন */
+            box-shadow: 0 0 10px #00ff62, inset 0 0 10px #00ff62;
             background-size: 100% 100%;
             animation: road-scroll 0.5s infinite linear;
         }
@@ -71,9 +78,9 @@
         #bike {
             width: 50px;
             height: 100px;
-            background-color: #e74c3c;
+            background-color: #ff00ff; /* নিয়ন ম্যাজেন্টা বাইক */
             border-radius: 10px 10px 20px 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px #ff00ff; /* নিয়ন গ্লো */
             position: absolute;
             bottom: 30px;
             left: calc(50% - 25px);
@@ -89,10 +96,10 @@
             position: absolute;
             width: 15px;
             height: 15px;
-            background-color: #34495e;
+            background-color: #00c6ff;
             border-radius: 50%;
-            border: 2px solid #ecf0f1;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            border: 2px solid #00c6ff;
+            box-shadow: 0 0 5px #00c6ff;
         }
         #bike::before { top: 15px; }
         #bike::after { bottom: 10px; }
@@ -100,10 +107,10 @@
         .obstacle {
             width: 60px;
             height: 30px;
-            background-color: #f1c40f;
-            border: 2px solid #555;
+            background-color: #ff6a00; /* নিয়ন কমলা বাধা */
+            border: 2px solid #ff6a00;
             border-radius: 5px;
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+            box-shadow: 0 0 15px #ff6a00;
             position: absolute;
             top: -50px;
             z-index: 2;
@@ -114,8 +121,8 @@
             top: 15px;
             left: 15px;
             font-size: 1.5em;
-            color: #ffeb3b;
-            text-shadow: 2px 2px 5px #000;
+            color: #00ff62;
+            text-shadow: 0 0 5px #00ff62;
             z-index: 5;
         }
         #high-score-display {
@@ -123,8 +130,8 @@
             top: 15px;
             right: 15px;
             font-size: 1.5em;
-            color: #a2d2ff;
-            text-shadow: 2px 2px 5px #000;
+            color: #00c6ff;
+            text-shadow: 0 0 5px #00c6ff;
             z-index: 5;
         }
 
@@ -142,9 +149,9 @@
             padding: 12px 0;
             font-size: 1.2em;
             font-weight: bold;
-            background-color: #2c3e50;
+            background-color: #0d1a26;
             color: #ecf0f1;
-            border: 2px solid #ecf0f1;
+            border: 2px solid #00c6ff;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
@@ -154,7 +161,7 @@
         }
         #controls button:active {
             transform: scale(0.95);
-            background-color: #34495e;
+            background-color: #1a2b3c;
         }
         
         .message-box {
@@ -165,15 +172,17 @@
             width: 80%;
             padding: 20px;
             background-color: rgba(0, 0, 0, 0.8);
-            border: 4px solid #ecf0f1;
+            border: 4px solid #00c6ff;
             border-radius: 10px;
             text-align: center;
             z-index: 10;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.5);
         }
         .message-box h2 {
             margin: 0 0 10px;
-            color: #f1c40f;
+            color: #ff6a00;
             font-size: 1.8em;
+            text-shadow: 0 0 5px #ff6a00;
         }
         .message-box p {
             font-size: 1.1em;
@@ -183,8 +192,8 @@
             padding: 10px 20px;
             font-size: 1em;
             font-weight: bold;
-            background-color: #e74c3c;
-            color: #fff;
+            background-color: #00ff62;
+            color: #0d1a26;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -205,23 +214,24 @@
             z-index: 20;
         }
         #start-screen h1 {
-            font-size: 2.5em;
-            text-shadow: 3px 3px 6px #000;
+            font-size: 1.5em; /* ছোট করা হয়েছে যাতে স্ক্রিনের বাইরে না যায় */
+            text-shadow: 0 0 10px #00ff62;
             margin-bottom: 20px;
         }
         #start-screen button {
             padding: 15px 30px;
             font-size: 1.5em;
             font-weight: bold;
-            background-color: #2ecc71;
-            color: #fff;
+            background-color: #00c6ff;
+            color: #0d1a26;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
+            box-shadow: 0 0 10px #00c6ff;
         }
         #start-screen button:hover {
-            background-color: #27ae60;
+            background-color: #00a4d1;
         }
     </style>
 </head>
