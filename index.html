@@ -380,6 +380,10 @@
     
     <div id="bubbleShooterGame">
       <h3>Bubble Shooter Game</h3>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold;">
+        <span>Level: <span id="gameLevel">1</span></span>
+        <span>Score: <span id="gameScore">0</span></span>
+      </div>
       <canvas id="gameCanvas" width="360" height="500"></canvas>
       <div id="gameControls">
         <button onclick="endGame()">End Game</button>
@@ -762,18 +766,24 @@
   let shooterBubble;
   let currentScore = 0;
   let gameActive = false;
+  let currentLevel = 1;
 
   const bubbleRadius = 15;
   const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
-  const gridRows = 5;
   const gridCols = 12;
   const bubbleSpacing = 3;
   const dropDistance = bubbleRadius * 2 + bubbleSpacing;
   let shotCount = 0;
 
-  function createBubbleGrid() {
+  const levelConfigs = [
+    { rows: 5, scoreToWin: 500 },
+    { rows: 6, scoreToWin: 1000 },
+    { rows: 7, scoreToWin: 1500 },
+  ];
+
+  function createBubbleGrid(rows) {
     bubbles = [];
-    for (let row = 0; row < gridRows; row++) {
+    for (let row = 0; row < rows; row++) {
       for (let col = 0; col < gridCols; col++) {
         const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
         const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2);
@@ -804,11 +814,25 @@
     
     gameActive = true;
     currentScore = 0;
+    currentLevel = 1;
     shotCount = 0;
-    createBubbleGrid();
-    createShooterBubble();
-
+    
+    loadLevel(currentLevel);
+    
     gameInterval = setInterval(updateGame, 1000 / 60);
+  }
+
+  function loadLevel(level) {
+    const config = levelConfigs[level - 1];
+    if (!config) {
+        alert("You have completed all levels! You win!");
+        winGame();
+        return;
+    }
+    createBubbleGrid(config.rows);
+    createShooterBubble();
+    document.getElementById('gameLevel').innerText = currentLevel;
+    document.getElementById('gameScore').innerText = currentScore;
   }
 
   function endGame() {
@@ -818,6 +842,18 @@
     alert(`Game Over! Your final score is: ${currentScore}`);
     
     balance += Math.floor(currentScore / 100);
+    saveData();
+    updateUI();
+    
+    document.getElementById('bubbleShooterGame').style.display = 'none';
+  }
+
+  function winGame() {
+    clearInterval(gameInterval);
+    gameActive = false;
+    alert(`Congratulations! You won the game! Your total score is: ${currentScore}`);
+    
+    balance += Math.floor(currentScore / 50); // Win bonus
     saveData();
     updateUI();
     
@@ -841,7 +877,6 @@
       }
 
       let collision = false;
-      let collidedBubble = null;
 
       if (shooterBubble.y - shooterBubble.radius <= 0) {
         collision = true;
@@ -853,7 +888,6 @@
 
           if (distance < bubbleRadius * 2) {
             collision = true;
-            collidedBubble = bubble;
             break;
           }
         }
@@ -862,13 +896,23 @@
       if (collision) {
           shooterBubble.isShot = false;
 
-          const newBubble = { x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius };
+          const newBubble = { x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: bubbleRadius };
           bubbles.push(newBubble);
-
+          
           const connected = findConnectedBubbles(newBubble);
           if (connected.length >= 3) {
             bubbles = bubbles.filter(bubble => !connected.includes(bubble));
             currentScore += connected.length * 10;
+            document.getElementById('gameScore').innerText = currentScore;
+            
+            // Check for winning condition
+            const currentConfig = levelConfigs[currentLevel - 1];
+            if (currentScore >= currentConfig.scoreToWin) {
+                currentLevel++;
+                alert(`Level ${currentLevel-1} Complete! Proceeding to Level ${currentLevel}.`);
+                loadLevel(currentLevel);
+                return;
+            }
           }
           
           shooterBubble.y = canvas.height - 30;
@@ -887,8 +931,16 @@
   function drawBubbles() {
     for (const bubble of bubbles) {
       ctx.beginPath();
+      // Improved bubble styling
+      const gradient = ctx.createRadialGradient(
+        bubble.x, bubble.y, 0, 
+        bubble.x, bubble.y, bubble.radius
+      );
+      gradient.addColorStop(0, 'white');
+      gradient.addColorStop(0.5, bubble.color);
+      gradient.addColorStop(1, bubble.color);
       ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
-      ctx.fillStyle = bubble.color;
+      ctx.fillStyle = gradient;
       ctx.fill();
       ctx.closePath();
     }
@@ -918,9 +970,20 @@
   }
 
   function dropBubbles() {
-    for (const bubble of bubbles) {
-      bubble.y += dropDistance;
-    }
+    let fallingBubbles = bubbles.slice();
+    let dropInterval = setInterval(() => {
+        if (fallingBubbles.length === 0) {
+            clearInterval(dropInterval);
+            return;
+        }
+        for(let i = 0; i < fallingBubbles.length; i++) {
+            fallingBubbles[i].y += 5; // A bit slower for a nice falling effect
+            if(fallingBubbles[i].y > canvas.height) {
+                fallingBubbles.splice(i, 1);
+                i--;
+            }
+        }
+    }, 50);
   }
   
   function checkForGameOver() {
