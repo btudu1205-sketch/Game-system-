@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Monetag Earn Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4CAF50;
+      --secondary-color: #2196F3;
+      --background-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: var(--background-color);
+      color: var(--text-color);
+      padding-bottom: 70px;
+    }
+    .container {
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 500px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      justify-content: space-around;
+      background: var(--card-bg);
+      border-top: 1px solid #e0e0e0;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+      border-radius: 15px 15px 0 0;
+    }
+    nav button {
+      flex: 1;
+      padding: 12px 8px;
+      font-size: 10px;
+      background: none;
+      border: none;
+      color: #777;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.3s ease;
+      position: relative;
+      cursor: pointer;
+    }
+    nav button.active-nav {
+      color: var(--primary-color);
+    }
+    nav button.active-nav::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      height: 3px;
+      width: 60%;
+      background: var(--primary-color);
+      border-radius: 0 0 5px 5px;
+    }
+    nav button i {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+      padding: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #555;
+    }
+    .card .value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: var(--border-radius);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: var(--primary-color);
+    }
+    .btn-secondary {
+      background: var(--secondary-color);
+    }
+    .btn-admin {
+      background: #FF9800;
+    }
+    .btn-owner {
+      background: #F44336;
+    }
+    .btn-terms {
+      background: #9E9E9E;
+    }
+    input {
+      width: calc(100% - 20px);
+      padding: 12px 10px;
+      margin-bottom: 15px;
+      border-radius: var(--border-radius);
+      border: 1px solid #ddd;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    h2 {
+      text-align: center;
+      color: #444;
+      margin-bottom: 25px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .icon {
+      margin-right: 10px;
+    }
+    .task-item {
+      background: #e9f5e9;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 10px;
+    }
+    .task-item span {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .task-item form {
+      margin-top: 10px;
+    }
+    .task-link {
+      display: block;
+      margin-top: 10px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--secondary-color);
+    }
+    .task-link i {
+      margin-right: 5px;
+    }
+    .auth-container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .auth-container h2 {
+      margin-bottom: 20px;
+    }
+    .auth-container p {
+      margin-top: 20px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      padding-top: 60px;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 350px;
+      border-radius: var(--border-radius);
+      text-align: center;
+    }
+    .close-btn {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close-btn:hover, .close-btn:focus {
+      color: black;
+      text-decoration: none;
+    }
+    .modal-content input {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 20px;
+      letter-spacing: 5px;
+    }
+    .game-card {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .game-card h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #444;
+    }
+    .game-card .btn-play {
+      background: var(--secondary-color);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+    }
+    /* New styles for Bubble Shooter game */
+    #bubbleShooterGame {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    #gameCanvas {
+      background: #e0f7fa;
+      border: 2px solid #00796b;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+    #gameControls button {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="authSections">
+    <div id="registerSection" class="auth-container">
+        <h2><i class="fas fa-user-plus"></i> Register</h2>
+        <form id="registerForm" onsubmit="handleRegistration(event)">
+            <input type="text" id="reg_username" placeholder="Telegram Username (@username)" required>
+            <input type="password" id="reg_password" placeholder="Password (min 8 characters)" required>
+            <input type="text" id="reg_chat_id" placeholder="Telegram Chat ID (10 digits)" required>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+    </div>
+
+    <div id="loginSection" class="auth-container hidden">
+        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <input type="text" id="login_username" placeholder="Telegram Username" required>
+            <input type="password" id="login_password" placeholder="Password" required>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+</div>
+
+<div id="verificationModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h2>Enter Verification Code</h2>
+    <p>We've sent a 4-digit code to your Telegram.</p>
+    <form onsubmit="verifyCode(event)">
+      <input type="text" id="verificationCodeInput" maxlength="4" required>
+      <button type="submit" class="btn btn-primary">Verify</button>
+    </form>
+  </div>
+</div>
+
+<div id="mainApp" class="container hidden">
+  <div id="home" class="section active">
+    <h2><i class="fas fa-home icon"></i>Dashboard</h2>
+    <div class="card">
+      <h3>Balance</h3>
+      <span class="value" id="balance">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Withdraw</h3>
+      <span class="value" id="withdraw">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Tasks</h3>
+      <span class="value" id="tasks">0</span>
+    </div>
+    <div class="card">
+      <h3>Ads Watched</h3>
+      <span class="value" id="ads">0</span>
+    </div>
+  </div>
+
+  <div id="earn" class="section">
+    <h2><i class="fas fa-dollar-sign icon"></i>Earn</h2>
+    <button class="btn btn-primary" onclick="showRewardedAd()"><i class="fas fa-video icon"></i>Watch Ads</button>
+    <button class="btn btn-secondary" onclick="showTasks()"><i class="fas fa-tasks icon"></i>Complete Tasks</button>
+    <div id="taskList" style="margin-top: 20px;"></div>
+  </div>
+
+  <div id="withdrawSection" class="section">
+    <h2><i class="fas fa-wallet icon"></i>Withdraw</h2>
+    <form onsubmit="submitWithdraw(event)">
+      <input type="text" id="number" placeholder="Your Number (Bkash/Nagad)" required>
+      <input type="number" id="amount" placeholder="Amount" required>
+      <button type="submit" class="btn btn-primary">Submit Withdraw</button>
+    </form>
+  </div>
+
+  <div id="gameSection" class="section">
+    <h2><i class="fas fa-gamepad icon"></i>Game Play</h2>
+    <div class="game-card">
+      <h4>Game 1: Bubble Shooter</h4>
+      <button class="btn-play" onclick="startBubbleShooter()">Play</button>
+    </div>
+    <div class="game-card">
+      <h4>Game 2: Guess the Number</h4>
+      <button class="btn-play" onclick="alert('Starting game: Guess the Number.')">Play</button>
+    </div>
+    <div class="game-card">
+      <h4>Game 3: Tap Challenge</h4>
+      <button class="btn-play" onclick="alert('Starting game: Tap Challenge.')">Play</button>
+    </div>
+    
+    <div id="bubbleShooterGame">
+      <h3>Bubble Shooter Game</h3>
+      <canvas id="gameCanvas" width="360" height="500"></canvas>
+      <div id="gameControls">
+        <button onclick="endGame()">End Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="context" class="section">
+    <h2><i class="fas fa-headset icon"></i>Support & Info</h2>
+    <a href="https://t.me/admin_link_here" target="_blank" style="text-decoration: none;">
+      <button class="btn btn-admin"><i class="fab fa-telegram-plane icon"></i>Admin Support</button>
+    </a>
+    <a href="https://t.me/owner_link_here" target="_blank" style="text-decoration: none;">
+      <button class="btn btn-owner"><i class="fab fa-telegram-plane icon"></i>Owner Support</button>
+    </a>
+    <a href="https://example.com/terms" target="_blank" style="text-decoration: none;">
+      <button class="btn btn-terms"><i class="fas fa-file-contract icon"></i>Terms & Conditions</button>
+    </a>
+  </div>
+
+  <div id="profile" class="section">
+    <h2><i class="fas fa-user-circle icon"></i>Profile</h2>
+    <div class="card">
+      <h3>Username</h3>
+      <span class="value" id="profileUsername"><b>Guest</b></span>
+    </div>
+    <div class="card">
+      <h3>Total Withdraw</h3>
+      <span class="value" id="profileWithdraw">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Tasks</h3>
+      <span class="value" id="profileTasks">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Ads Watched</h3>
+      <span class="value" id="profileAds">0</span>
+    </div>
+  </div>
+</div>
+
+<nav id="appNav">
+  <button onclick="showSection('home', this)" class="active-nav">
+    <i class="fas fa-home"></i>
+    <span>Home</span>
+  </button>
+  <button onclick="showSection('earn', this)">
+    <i class="fas fa-dollar-sign"></i>
+    <span>Earn</span>
+  </button>
+  <button onclick="showSection('withdrawSection', this)">
+    <i class="fas fa-wallet"></i>
+    <span>Withdraw</span>
+  </button>
+  <button onclick="showSection('gameSection', this)">
+    <i class="fas fa-gamepad"></i>
+    <span>Game Play</span>
+  </button>
+  <button onclick="showSection('context', this)">
+    <i class="fas fa-headset"></i>
+    <span>Support</span>
+  </button>
+  <button onclick="showSection('profile', this)">
+    <i class="fas fa-user-circle"></i>
+    <span>Profile</span>
+  </button>
+</nav>
+
+<script>
+  // Your Telegram and Monetag Details
+  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
+  const CHAT_ID = '5965219037';
+  const MONETAG_ZONE_ID = '9572158'; // Monetag zone ID for future use
+
+  let currentUsername = localStorage.getItem('currentUsername') || null;
+  let verificationCode = null;
+  let tempUserData = {};
+
+  function sendTelegramNotification(chatId, message) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (!data.ok) {
+          console.error("Failed to send Telegram message:", data.description);
+        }
+      })
+      .catch(error => {
+        console.error("Error sending Telegram message:", error);
+      });
+  }
+
+  function sendTelegramImageNotification(chatId, imageFile, caption) {
+    const formData = new FormData();
+    formData.append('chat_id', chatId);
+    formData.append('photo', imageFile);
+    formData.append('caption', caption);
+
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data.ok) {
+        console.error("Failed to send image:", data.description);
+      }
+    })
+    .catch(error => {
+      console.error("Error sending image:", error);
+    });
+  }
+
+  function showModal() {
+    document.getElementById('verificationModal').style.display = 'block';
+  }
+  function closeModal() {
+    document.getElementById('verificationModal').style.display = 'none';
+  }
+
+  function checkLoginStatus() {
+    if (currentUsername) {
+      document.getElementById('authSections').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('appNav').style.display = 'flex';
+      loadUserData(currentUsername);
+    } else {
+      document.getElementById('authSections').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('appNav').style.display = 'none';
+    }
+  }
+
+  function showLogin() {
+    document.getElementById('loginSection').classList.remove('hidden');
+    document.getElementById('registerSection').classList.add('hidden');
+  }
+
+  function showRegister() {
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('registerSection').classList.remove('hidden');
+  }
+
+  function handleRegistration(e) {
+    e.preventDefault();
+    const username = document.getElementById('reg_username').value;
+    const password = document.getElementById('reg_password').value;
+    const telegramChatId = document.getElementById('reg_chat_id').value;
+    
+    if (!username.startsWith('@')) {
+        alert("❌ Username must start with '@'.");
+        return;
+    }
+    if (password.length < 8) {
+        alert("❌ Password must be at least 8 characters long.");
+        return;
+    }
+    if (telegramChatId.length !== 10) {
+        alert("❌ Telegram Chat ID must be exactly 10 digits long.");
+        return;
+    }
+    
+    if (localStorage.getItem(username)) {
+      alert("❌ This username is already taken!");
+      return;
+    }
+    
+    verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    sendTelegramNotification(telegramChatId, `Your verification code is: <b>${verificationCode}</b>`);
+    
+    tempUserData = {
+      username: username,
+      password: password,
+      chatId: telegramChatId,
+      balance: 0,
+      withdraw: 0,
+      tasks: 0,
+      ads: 0
+    };
+    
+    showModal();
+  }
+  
+  function verifyCode(e) {
+    e.preventDefault();
+    const submittedCode = document.getElementById('verificationCodeInput').value;
+    
+    if (submittedCode === verificationCode) {
+      localStorage.setItem(tempUserData.username, JSON.stringify(tempUserData));
+      alert("✅ Registration successful! Please log in.");
+      closeModal();
+      showLogin();
+      verificationCode = null;
+      tempUserData = {};
+      document.getElementById('verificationCodeInput').value = '';
+    } else {
+      alert("❌ Incorrect verification code.");
+    }
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('login_username').value;
+    const password = document.getElementById('login_password').value;
+    
+    const userData = JSON.parse(localStorage.getItem(username));
+    if (userData && userData.password === password) {
+      currentUsername = username;
+      localStorage.setItem('currentUsername', username);
+      checkLoginStatus();
+    } else {
+      alert("❌ Invalid username or password.");
+    }
+  }
+
+  let balance, withdraw, tasks, ads;
+  let currentUserChatId;
+
+  function loadUserData(username) {
+    const userData = JSON.parse(localStorage.getItem(username));
+    balance = userData.balance;
+    withdraw = userData.withdraw;
+    tasks = userData.tasks;
+    ads = userData.ads;
+    currentUserChatId = userData.chatId;
+
+    document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById("balance").innerText = balance;
+    document.getElementById("withdraw").innerText = withdraw;
+    document.getElementById("tasks").innerText = tasks;
+    document.getElementById("ads").innerText = ads;
+    document.getElementById("profileWithdraw").innerText = withdraw;
+    document.getElementById("profileTasks").innerText = tasks;
+    document.getElementById("profileAds").innerText = ads;
+  }
+
+  function saveData() {
+    const userData = {
+      username: currentUsername,
+      password: JSON.parse(localStorage.getItem(currentUsername)).password,
+      chatId: currentUserChatId,
+      balance: balance,
+      withdraw: withdraw,
+      tasks: tasks,
+      ads: ads
+    };
+    localStorage.setItem(currentUsername, JSON.stringify(userData));
+  }
+  
+  function showSection(id, element) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    
+    document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
+    element.classList.add("active-nav");
+    
+    updateUI();
+
+    if (id !== 'gameSection') {
+      endGame();
+    }
+  }
+
+  function showRewardedAd() {
+    // This is a placeholder for your Monetag Rewarded Ad code.
+    // Please replace this with the actual code provided by Monetag.
+    // The following code simulates a successful ad view.
+
+    alert("Simulating ad view... Please wait.");
+    setTimeout(() => {
+        balance += 10;
+        ads += 1;
+        saveData();
+        alert("✅ You earned 10 points!");
+        updateUI();
+    }, 1500);
+  }
+
+  function showTasks() {
+    var html = `
+      <div class="task-item">
+        <span><b>Task 1:</b> Subscribe to our Telegram Channel.</span>
+        <a href="https://t.me/your_channel_link" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-telegram"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Telegram Channel')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 2:</b> Join our Discord Group.</span>
+        <a href="https://discord.gg/your_discord_link" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-discord"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Discord Group')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 3:</b> Follow us on Twitter.</span>
+        <a href="https://twitter.com/your_twitter_profile" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-twitter"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Twitter Follow')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 4:</b> Like our Facebook Page.</span>
+        <a href="https://facebook.com/your_page" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-facebook"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Facebook Page')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 5:</b> Visit our Website.</span>
+        <a href="https://example.com" target="_blank" class="btn btn-secondary">
+          <i class="fas fa-globe"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Website Visit')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+    `;
+    document.getElementById("taskList").innerHTML = html;
+  }
+
+  function submitTask(e, points, taskName) {
+    e.preventDefault();
+    const fileInput = e.target.querySelector('input[type="file"]');
+    const file = fileInput.files[0];
+    
+    tasks += 1;
+    balance += points;
+    saveData();
+    
+    alert("📷 Screenshot submitted. You earned " + points + " points!");
+    updateUI();
+
+    const caption = `<b>New Task Submission!</b>\n<b>User:</b> ${currentUsername}\n<b>Task Name:</b> ${taskName}`;
+    sendTelegramImageNotification(CHAT_ID, file, caption);
+  }
+
+  function submitWithdraw(e) {
+    e.preventDefault();
+    const amount = parseInt(document.getElementById("amount").value);
+    const number = document.getElementById("number").value;
+    
+    if (amount > balance) {
+      alert("❌ Not enough balance.");
+      return;
+    }
+    
+    withdraw += amount;
+    balance -= amount;
+    saveData();
+    
+    alert("✅ Withdraw submitted! Remaining balance: " + balance + ".");
+    updateUI();
+    document.getElementById("number").value = '';
+    document.getElementById("amount").value = '';
+
+    const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${currentUsername}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>Chat ID:</b> ${currentUserChatId}`;
+    sendTelegramNotification(CHAT_ID, withdrawMessage);
+  }
+
+  // ===== Bubble Shooter Game Logic Start =====
+  let gameInterval;
+  let canvas, ctx;
+  let bubbles = [];
+  let shooterBubble;
+  let currentScore = 0;
+  let gameActive = false;
+
+  const bubbleRadius = 15;
+  const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
+
+  function startBubbleShooter() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    canvas.addEventListener('click', shootBubble);
+
+    document.getElementById('bubbleShooterGame').style.display = 'block';
+    
+    gameActive = true;
+    currentScore = 0;
+    bubbles = []; // Clear previous bubbles
+    
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < (row % 2 === 0 ? 12 : 11); col++) {
+        const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+        const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + 5 : bubbleRadius * 2 + 5);
+        const y = row * bubbleRadius * 2 + bubbleRadius;
+        bubbles.push({ x, y, color });
+      }
+    }
+    
+    shooterBubble = {
+      x: canvas.width / 2,
+      y: canvas.height - 30,
+      radius: bubbleRadius,
+      color: bubbleColors[Math.floor(Math.random() * bubbleColors.length)],
+      isShot: false,
+      speedX: 0,
+      speedY: 0
+    };
+
+    gameInterval = setInterval(updateGame, 1000 / 60);
+  }
+
+  function endGame() {
+    if (!gameActive) return;
+    clearInterval(gameInterval);
+    gameActive = false;
+    alert(`Game Over! Your final score is: ${currentScore}`);
+    
+    balance += Math.floor(currentScore / 100);
+    saveData();
+    updateUI();
+    
+    document.getElementById('bubbleShooterGame').style.display = 'none';
+  }
+  
+  function updateGame() {
+    if (!gameActive) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    drawBubbles();
+    drawShooter();
+    
+    if (shooterBubble.isShot) {
+      shooterBubble.x += shooterBubble.speedX;
+      shooterBubble.y += shooterBubble.speedY;
+
+      if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
+        shooterBubble.speedX *= -1;
+      }
+      
+      let collision = false;
+      for (let i = 0; i < bubbles.length; i++) {
+        const dx = shooterBubble.x - bubbles[i].x;
+        const dy = shooterBubble.y - bubbles[i].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < bubbleRadius * 2) {
+          if (shooterBubble.color === bubbles[i].color) {
+            const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
+            if (bubblesToPop.length >= 3) {
+              bubblesToPop.forEach(popBubble => {
+                bubbles = bubbles.filter(b => b !== popBubble);
+              });
+              currentScore += bubblesToPop.length * 10;
+            }
+          }
+          collision = true;
+          break;
+        }
+      }
+
+      if (shooterBubble.y - shooterBubble.radius < 0 || collision) {
+          shooterBubble.isShot = false;
+          resetShooter();
+      }
+    }
+  }
+
+  function drawBubbles() {
+    for (const bubble of bubbles) {
+      ctx.beginPath();
+      ctx.arc(bubble.x, bubble.y, bubbleRadius, 0, Math.PI * 2);
+      ctx.fillStyle = bubble.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  function drawShooter() {
+    ctx.beginPath();
+    ctx.arc(shooterBubble.x, shooterBubble.y, shooterBubble.radius, 0, Math.PI * 2);
+    ctx.fillStyle = shooterBubble.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function shootBubble(e) {
+    if (!gameActive || shooterBubble.isShot) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const angle = Math.atan2(clickY - shooterBubble.y, clickX - shooterBubble.x);
+    const speed = 10;
+    
+    shooterBubble.speedX = Math.cos(angle) * speed;
+    shooterBubble.speedY = Math.sin(angle) * speed;
+    shooterBubble.isShot = true;
+  }
+  
+  function resetShooter() {
+    shooterBubble.x = canvas.width / 2;
+    shooterBubble.y = canvas.height - 30;
+    shooterBubble.color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+  }
+
+  function findConnectedBubbles(x, y, color) {
+    const stack = [{x, y}];
+    const visited = new Set();
+    const connected = [];
+
+    while (stack.length > 0) {
+      const current = stack.pop();
+      const key = `${current.x},${current.y}`;
+
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      const bubble = bubbles.find(b => b.x === current.x && b.y === current.y);
+      if (bubble && bubble.color === color) {
+        connected.push(bubble);
+
+        for (const neighbor of getNeighbors(current.x, current.y)) {
+          stack.push(neighbor);
+        }
+      }
+    }
+    return connected;
+  }
+  
+  function getNeighbors(x, y) {
+    const neighbors = [];
+    const positions = [
+        { dx: -2 * bubbleRadius, dy: 0 },
+        { dx: 2 * bubbleRadius, dy: 0 },
+        { dx: -bubbleRadius, dy: -2 * bubbleRadius },
+        { dx: bubbleRadius, dy: -2 * bubbleRadius },
+        { dx: -bubbleRadius, dy: 2 * bubbleRadius },
+        { dx: bubbleRadius, dy: 2 * bubbleRadius }
+    ];
+    for (const pos of positions) {
+      neighbors.push({ x: x + pos.dx, y: y + pos.dy });
+    }
+    return neighbors;
+  }
+
+  window.onload = () => {
+    checkLoginStatus();
+    const homeButton = document.querySelector('nav button:first-child');
+    if (homeButton) {
+      showSection('home', homeButton);
+    }
+  };
+</script>
+
+</body>
+</html>
