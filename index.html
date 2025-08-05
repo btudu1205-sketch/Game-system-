@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>মোবাইল বাইক রেসিং গেম</title>
+    <title>বাইক রেসিং গেম</title>
     <style>
         /* CSS কোড: গেমের ডিজাইন */
         body {
@@ -12,11 +12,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            /* নতুন ব্যাকগ্রাউন্ড ইমেজ */
-            background-image: url('[attachment_0](attachment)');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background-color: #3f51b5; /* নতুন ব্যাকগ্রাউন্ড কালার: নীল */
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -29,8 +25,8 @@
             width: 95vw;
             max-width: 450px;
             height: 85vh;
-            background-color: rgba(44, 62, 80, 0.8); /* গাঢ় নীল এবং স্বচ্ছ */
-            border: 10px solid #7f8c8d;
+            background-color: #536dfe; /* গেম কন্টেইনার ব্যাকগ্রাউন্ড: উজ্জ্বল নীল */
+            border: 10px solid #303f9f;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             position: relative;
@@ -49,11 +45,11 @@
             animation: road-scroll 0.5s infinite linear;
         }
         #side-lines {
-            background-image: linear-gradient(to right, #ccc 4px, transparent 4px), linear-gradient(to right, transparent 98%, #ccc 98%);
+            background-image: linear-gradient(to right, #fff 4px, transparent 4px), linear-gradient(to right, transparent 98%, #fff 98%);
             background-size: 100% 100%;
             animation: road-scroll 0.5s infinite linear;
         }
-        
+
         @keyframes road-scroll {
             0% { background-position-y: 0; }
             100% { background-position-y: 200px; }
@@ -62,7 +58,7 @@
         #bike {
             width: 50px;
             height: 100px;
-            background-color: #e74c3c;
+            background-color: #ff3d00; /* বাইকের কালার: উজ্জ্বল কমলা */
             border-radius: 10px 10px 20px 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             position: absolute;
@@ -75,21 +71,34 @@
         .obstacle {
             width: 60px;
             height: 30px;
-            background-color: #f1c40f;
-            border: 2px solid #333;
+            background-color: #ffc107; /* বাধার কালার: হলুদ */
+            border: 2px solid #555;
             border-radius: 5px;
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
             position: absolute;
             top: -50px;
             z-index: 2;
         }
 
+        #game-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 5px #000;
+            z-index: 4;
+            display: none; /* গেম চলাকালীন লুকানো থাকবে */
+        }
+        
         #score-display {
             position: absolute;
             top: 15px;
             left: 15px;
             font-size: 1.5em;
-            color: #f1c40f;
+            color: #ffeb3b;
             text-shadow: 2px 2px 5px #000;
             z-index: 5;
         }
@@ -107,7 +116,7 @@
             padding: 12px 0;
             font-size: 1.2em;
             font-weight: bold;
-            background-color: #555;
+            background-color: #303f9f;
             color: #fff;
             border: 2px solid #fff;
             border-radius: 5px;
@@ -119,7 +128,7 @@
         }
         #controls button:active {
             transform: scale(0.95);
-            background-color: #777;
+            background-color: #536dfe;
         }
         
         #message-box {
@@ -138,7 +147,7 @@
         }
         #message-box h2 {
             margin: 0 0 10px;
-            color: #f1c40f;
+            color: #ffeb3b;
             font-size: 1.8em;
         }
         #message-box p {
@@ -149,7 +158,7 @@
             padding: 10px 20px;
             font-size: 1em;
             font-weight: bold;
-            background-color: #e74c3c;
+            background-color: #ff3d00;
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -159,6 +168,7 @@
 </head>
 <body>
     <div id="game-container">
+        <h1 id="game-title">Hridoy Skill Game</h1>
         <div id="road-lines"></div>
         <div id="side-lines"></div>
         <div id="bike"></div>
@@ -184,6 +194,7 @@
         const restartBtn = document.getElementById('restart-btn');
         const leftBtn = document.getElementById('left-btn');
         const rightBtn = document.getElementById('right-btn');
+        const gameTitle = document.getElementById('game-title');
         
         let bikePositionX = gameContainer.clientWidth / 2 - bike.clientWidth / 2;
         let score = 0;
@@ -211,6 +222,9 @@
 
         function createObstacle() {
             if (isGameOver) return;
+            
+            // গেম শুরু হলে টাইটেল লুকানো
+            gameTitle.style.display = 'none';
 
             const obstacle = document.createElement('div');
             obstacle.classList.add('obstacle');
@@ -273,11 +287,16 @@
             scoreDisplay.innerText = "স্কোর: 0";
             messageBox.style.display = 'none';
             document.querySelectorAll('.obstacle').forEach(obstacle => obstacle.remove());
+            
+            // গেম পুনরায় শুরু হলে টাইটেল দেখানো
+            gameTitle.style.display = 'block';
+
             createObstacle();
         }
 
         // মোবাইল টাচ কন্ট্রোল
         gameContainer.addEventListener('touchstart', (e) => {
+            if (isGameOver) return; // গেম শেষ হলে টাচ কাজ করবে না
             const touchX = e.touches[0].clientX;
             const containerLeft = gameContainer.getBoundingClientRect().left;
             const containerWidth = gameContainer.clientWidth;
