@@ -1,3 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Monetag Earn Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4CAF50;
+      --secondary-color: #2196F3;
+      --background-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: var(--background-color);
+      color: var(--text-color);
+      padding-bottom: 70px;
+    }
+    .container {
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 500px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      justify-content: space-around;
+      background: var(--card-bg);
+      border-top: 1px solid #e0e0e0;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+      border-radius: 15px 15px 0 0;
+    }
+    nav button {
+      flex: 1;
+      padding: 12px 8px;
+      font-size: 10px;
+      background: none;
+      border: none;
+      color: #777;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.3s ease;
+      position: relative;
+      cursor: pointer;
+    }
+    nav button.active-nav {
+      color: var(--primary-color);
+    }
+    nav button.active-nav::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      height: 3px;
+      width: 60%;
+      background: var(--primary-color);
+      border-radius: 0 0 5px 5px;
+    }
+    nav button i {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+      padding: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #555;
+    }
+    .card .value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: var(--border-radius);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: var(--primary-color);
+    }
+    .btn-secondary {
+      background: var(--secondary-color);
+    }
+    .btn-admin {
+      background: #FF9800;
+    }
+    .btn-owner {
+      background: #F44336;
+    }
+    .btn-terms {
+      background: #9E9E9E;
+    }
+    input {
+      width: calc(100% - 20px);
+      padding: 12px 10px;
+      margin-bottom: 15px;
+      border-radius: var(--border-radius);
+      border: 1px solid #ddd;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    h2 {
+      text-align: center;
+      color: #444;
+      margin-bottom: 25px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .icon {
+      margin-right: 10px;
+    }
+    .task-item {
+      background: #e9f5e9;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 10px;
+    }
+    .task-item span {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .task-item form {
+      margin-top: 10px;
+    }
+    .task-link {
+      display: block;
+      margin-top: 10px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--secondary-color);
+    }
+    .task-link i {
+      margin-right: 5px;
+    }
+    .auth-container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .auth-container h2 {
+      margin-bottom: 20px;
+    }
+    .auth-container p {
+      margin-top: 20px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      padding-top: 60px;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 350px;
+      border-radius: var(--border-radius);
+      text-align: center;
+    }
+    .close-btn {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close-btn:hover, .close-btn:focus {
+      color: black;
+      text-decoration: none;
+    }
+    .modal-content input {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 20px;
+      letter-spacing: 5px;
+    }
+    .game-card {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .game-card h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #444;
+    }
+    .game-card .btn-play {
+      background: var(--secondary-color);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+    }
+    /* New styles for Bubble Shooter game */
+    #bubbleShooterGame {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    #gameCanvas {
+      background: #e0f7fa;
+      border: 2px solid #00796b;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+    #gameControls button {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="authSections">
+    <div id="registerSection" class="auth-container">
+        <h2><i class="fas fa-user-plus"></i> Register</h2>
+        <form id="registerForm" onsubmit="handleRegistration(event)">
+            <input type="text" id="reg_username" placeholder="Telegram Username (@username)" required>
+            <input type="password" id="reg_password" placeholder="Password (min 8 characters)" required>
+            <input type="text" id="reg_chat_id" placeholder="Telegram Chat ID (10 digits)" required>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+    </div>
+
+    <div id="loginSection" class="auth-container hidden">
+        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <input type="text" id="login_username" placeholder="Telegram Username" required>
+            <input type="password" id="login_password" placeholder="Password" required>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+</div>
+
+<div id="verificationModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h2>Enter Verification Code</h2>
+    <p>We've sent a 4-digit code to your Telegram.</p>
+    <form onsubmit="verifyCode(event)">
+      <input type="text" id="verificationCodeInput" maxlength="4" required>
+      <button type="submit" class="btn btn-primary">Verify</button>
+    </form>
+  </div>
+</div>
+
+<div id="mainApp" class="container hidden">
+  <div id="home" class="section active">
+    <h2><i class="fas fa-home icon"></i>Dashboard</h2>
+    <div class="card">
+      <h3>Balance</h3>
+      <span class="value" id="balance">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Withdraw</h3>
+      <span class="value" id="withdraw">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Tasks</h3>
+      <span class="value" id="tasks">0</span>
+    </div>
+    <div class="card">
+      <h3>Ads Watched</h3>
+      <span class="value" id="ads">0</span>
+    </div>
+  </div>
+
+  <div id="earn" class="section">
+    <h2><i class="fas fa-dollar-sign icon"></i>Earn</h2>
+    <button class="btn btn-primary" onclick="showRewardedAd()"><i class="fas fa-video icon"></i>Watch Ads</button>
+    <button class="btn btn-secondary" onclick="showTasks()"><i class="fas fa-tasks icon"></i>Complete Tasks</button>
+    <div id="taskList" style="margin-top: 20px;"></div>
+  </div>
+
+  <div id="withdrawSection" class="section">
+    <h2><i class="fas fa-wallet icon"></i>Withdraw</h2>
+    <form onsubmit="submitWithdraw(event)">
+      <input type="text" id="number" placeholder="Your Number (Bkash/Nagad)" required>
+      <input type="number" id="amount" placeholder="Amount" required>
+      <button type="submit" class="btn btn-primary">Submit Withdraw</button>
+    </form>
+  </div>
+
+  <div id="gameSection" class="section">
+    <h2><i class="fas fa-gamepad icon"></i>Game Play</h2>
+    <div class="game-card">
+      <h4>Game 1: Bubble Shooter</h4>
+      <button class="btn-play" onclick="startBubbleShooter()">Play</button>
+    </div>
+    <div class="game-card">
+      <h4>Game 2: Guess the Number</h4>
+      <button class="btn-play" onclick="alert('Starting game: Guess the Number.')">Play</button>
+    </div>
+    <div class="game-card">
+      <h4>Game 3: Tap Challenge</h4>
+      <button class="btn-play" onclick="alert('Starting game: Tap Challenge.')">Play</button>
+    </div>
+    
+    <div id="bubbleShooterGame">
+      <h3>Bubble Shooter Game</h3>
+      <canvas id="gameCanvas" width="360" height="500"></canvas>
+      <div id="gameControls">
+        <button onclick="endGame()">End Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="context" class="section">
+    <h2><i class="fas fa-headset icon"></i>Support & Info</h2>
+    <a href="https://t.me/admin_link_here" target="_blank" style="text-decoration: none;">
+      <button class="btn btn-admin"><i class="fab fa-telegram-plane icon"></i>Admin Support</button>
+    </a>
+    <a href="https://t.me/owner_link_here" target="_blank" style="text-decoration: none;">
+      <button class="btn btn-owner"><i class="fab fa-telegram-plane icon"></i>Owner Support</button>
+    </a>
+    <a href="https://example.com/terms" target="_blank" style="text-decoration: none;">
+      <button class="btn btn-terms"><i class="fas fa-file-contract icon"></i>Terms & Conditions</button>
+    </a>
+  </div>
+
+  <div id="profile" class="section">
+    <h2><i class="fas fa-user-circle icon"></i>Profile</h2>
+    <div class="card">
+      <h3>Username</h3>
+      <span class="value" id="profileUsername"><b>Guest</b></span>
+    </div>
+    <div class="card">
+      <h3>Total Withdraw</h3>
+      <span class="value" id="profileWithdraw">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Tasks</h3>
+      <span class="value" id="profileTasks">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Ads Watched</h3>
+      <span class="value" id="profileAds">0</span>
+    </div>
+  </div>
+</div>
+
+<nav id="appNav">
+  <button onclick="showSection('home', this)" class="active-nav">
+    <i class="fas fa-home"></i>
+    <span>Home</span>
+  </button>
+  <button onclick="showSection('earn', this)">
+    <i class="fas fa-dollar-sign"></i>
+    <span>Earn</span>
+  </button>
+  <button onclick="showSection('withdrawSection', this)">
+    <i class="fas fa-wallet"></i>
+    <span>Withdraw</span>
+  </button>
+  <button onclick="showSection('gameSection', this)">
+    <i class="fas fa-gamepad"></i>
+    <span>Game Play</span>
+  </button>
+  <button onclick="showSection('context', this)">
+    <i class="fas fa-headset"></i>
+    <span>Support</span>
+  </button>
+  <button onclick="showSection('profile', this)">
+    <i class="fas fa-user-circle"></i>
+    <span>Profile</span>
+  </button>
+</nav>
+
+<script>
   // Your Telegram and Monetag Details
   const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
   const CHAT_ID = '5965219037';
@@ -308,14 +760,13 @@
     sendTelegramNotification(CHAT_ID, withdrawMessage);
   }
 
-  // ===== Bubble Shooter Game Logic Start (উন্নত করা হয়েছে) =====
+  // ===== Bubble Shooter Game Logic Start =====
   let gameInterval;
   let canvas, ctx;
   let bubbles = [];
   let shooterBubble;
   let currentScore = 0;
   let gameActive = false;
-  let shotsSinceDrop = 0;
 
   const bubbleRadius = 15;
   const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
@@ -323,21 +774,16 @@
   const gridCols = 12;
   const bubbleSpacing = 3;
   const dropDistance = bubbleRadius * 2 + bubbleSpacing;
-  
-  // গ্রিড পজিশন থেকে বাবল তৈরি করার ফাংশন
-  function createBubble(col, row) {
-    const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing);
-    const y = row * dropDistance + bubbleRadius + bubbleSpacing;
-    const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
-    return { x, y, color, radius: bubbleRadius };
-  }
+  let shotCount = 0;
 
   function createBubbleGrid() {
     bubbles = [];
     for (let row = 0; row < gridRows; row++) {
-      const currentGridCols = gridCols - (row % 2);
-      for (let col = 0; col < currentGridCols; col++) {
-        bubbles.push(createBubble(col, row));
+      for (let col = 0; col < gridCols - (row % 2); col++) {
+        const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+        const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing);
+        const y = row * (bubbleRadius * 2 + bubbleSpacing) + bubbleRadius + bubbleSpacing;
+        bubbles.push({ x, y, color, radius: bubbleRadius });
       }
     }
   }
@@ -363,7 +809,7 @@
     
     gameActive = true;
     currentScore = 0;
-    shotsSinceDrop = 0;
+    shotCount = 0;
     createBubbleGrid();
     createShooterBubble();
 
@@ -395,19 +841,15 @@
       shooterBubble.x += shooterBubble.speedX;
       shooterBubble.y += shooterBubble.speedY;
 
-      // বাউন্স লজিক
+      // Bounce off walls
       if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
         shooterBubble.speedX *= -1;
       }
 
-      // উপরের দেওয়ালে বা অন্য বাবলের সাথে ধাক্কা খাওয়ার লজিক
+      // Check for collision with top or other bubbles
       let collision = false;
       if (shooterBubble.y - shooterBubble.radius <= 0) {
         collision = true;
-        // উপরে ধাক্কা খেলে গ্রিডে যুক্ত হবে
-        const snapX = shooterBubble.x;
-        const snapY = bubbleRadius + bubbleSpacing;
-        addAndCheckBubble(snapX, snapY, shooterBubble.color);
       } else {
         for (let i = 0; i < bubbles.length; i++) {
           const dx = shooterBubble.x - bubbles[i].x;
@@ -416,121 +858,39 @@
 
           if (distance < bubbleRadius * 2) {
             collision = true;
-            // অন্য বাবলের সাথে ধাক্কা খেলে গ্রিডে যুক্ত হবে
-            addAndCheckBubble(shooterBubble.x, shooterBubble.y, shooterBubble.color);
+            
+            // Pop logic
+            if (shooterBubble.color === bubbles[i].color) {
+              const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
+              if (bubblesToPop.length >= 2) { // 2 matching bubbles + the new one
+                bubblesToPop.forEach(popBubble => {
+                  bubbles = bubbles.filter(b => b !== popBubble);
+                });
+                currentScore += (bubblesToPop.length + 1) * 10;
+              } else {
+                bubbles.push({ x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius });
+              }
+            } else {
+              bubbles.push({ x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius });
+            }
             break;
           }
         }
       }
 
       if (collision) {
-        shooterBubble.isShot = false;
-        shotsSinceDrop++;
-        if (shotsSinceDrop % 3 === 0) {
+          shooterBubble.isShot = false;
+          shotCount++;
+          if (shotCount % 3 === 0) {
             dropBubbles();
-        }
-        createShooterBubble();
+          }
+          createShooterBubble();
       }
     }
     
     checkForGameOver();
   }
-
-  // নতুন বাবল গ্রিডে যুক্ত করা এবং ফাটার জন্য চেক করা
-  function addAndCheckBubble(x, y, color) {
-    // সবচেয়ে কাছের গ্রিড পজিশন খুঁজে বের করা
-    const row = Math.round((y - bubbleRadius - bubbleSpacing) / dropDistance);
-    const currentGridCols = gridCols - (row % 2);
-    const col = Math.round((x - (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing)) / (bubbleRadius * 2));
-    
-    const snapX = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing);
-    const snapY = row * dropDistance + bubbleRadius + bubbleSpacing;
-
-    const newBubble = { x: snapX, y: snapY, color, radius: bubbleRadius };
-    bubbles.push(newBubble);
-
-    // একই রঙের বাবল খুঁজে বের করা এবং ফাটিয়ে দেওয়া
-    const matchingBubbles = findMatchingBubbles(newBubble);
-    if (matchingBubbles.length >= 3) {
-      removeBubbles(matchingBubbles);
-      currentScore += matchingBubbles.length * 10;
-      removeFloatingBubbles();
-    }
-  }
-
-  // একটি বাবলের সাথে একই রঙের সংযুক্ত বাবল খুঁজে বের করা
-  function findMatchingBubbles(startBubble) {
-    const stack = [startBubble];
-    const visited = new Set();
-    const connected = [];
-    const minDistance = bubbleRadius * 2 - 1; // দূরত্ব যাচাইয়ের জন্য সহনশীলতা
-
-    while (stack.length > 0) {
-        const currentBubble = stack.pop();
-        const key = `${currentBubble.x},${currentBubble.y}`;
-
-        if (visited.has(key)) continue;
-        visited.add(key);
-        connected.push(currentBubble);
-
-        for (const otherBubble of bubbles) {
-            if (otherBubble.color === currentBubble.color && !visited.has(`${otherBubble.x},${otherBubble.y}`)) {
-                const dx = currentBubble.x - otherBubble.x;
-                const dy = currentBubble.y - otherBubble.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < minDistance) {
-                    stack.push(otherBubble);
-                }
-            }
-        }
-    }
-    return connected;
-  }
   
-  // বাবলগুলো মুছে ফেলার ফাংশন
-  function removeBubbles(bubblesToRemove) {
-    bubbles = bubbles.filter(bubble => !bubblesToRemove.includes(bubble));
-  }
-
-  // ভাসমান বাবল খুঁজে বের করা এবং মুছে ফেলার ফাংশন
-  function removeFloatingBubbles() {
-    const connectedToTop = new Set();
-    const stack = [];
-
-    // উপরের সারির বাবলগুলো স্ট্যাকে যোগ করা
-    for (const bubble of bubbles) {
-      if (bubble.y <= dropDistance + bubbleRadius + 1) { // টপ রো এর আশেপাশে
-        stack.push(bubble);
-        connectedToTop.add(bubble);
-      }
-    }
-
-    // DFS/BFS ব্যবহার করে সংযুক্ত বাবলগুলো খুঁজে বের করা
-    while (stack.length > 0) {
-      const currentBubble = stack.pop();
-      for (const otherBubble of bubbles) {
-        if (!connectedToTop.has(otherBubble)) {
-          const dx = currentBubble.x - otherBubble.x;
-          const dy = currentBubble.y - otherBubble.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < bubbleRadius * 2 - 1) {
-            stack.push(otherBubble);
-            connectedToTop.add(otherBubble);
-          }
-        }
-      }
-    }
-
-    // যে বাবলগুলো সংযুক্ত নয়, সেগুলো মুছে ফেলা
-    const floatingBubbles = bubbles.filter(bubble => !connectedToTop.has(bubble));
-    if (floatingBubbles.length > 0) {
-      bubbles = bubbles.filter(bubble => connectedToTop.has(bubble));
-      currentScore += floatingBubbles.length * 10;
-    }
-  }
-
   function drawBubbles() {
     for (const bubble of bubbles) {
       ctx.beginPath();
@@ -578,7 +938,47 @@
       }
     }
   }
+
+  function findConnectedBubbles(x, y, color) {
+    const stack = [{x, y}];
+    const visited = new Set();
+    const connected = [];
+
+    while (stack.length > 0) {
+      const current = stack.pop();
+      const key = `${current.x},${current.y}`;
+
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      const bubble = bubbles.find(b => b.x === current.x && b.y === current.y);
+      if (bubble && bubble.color === color) {
+        connected.push(bubble);
+
+        for (const neighbor of getNeighbors(current.x, current.y)) {
+          stack.push(neighbor);
+        }
+      }
+    }
+    return connected;
+  }
   
+  function getNeighbors(x, y) {
+    const neighbors = [];
+    const positions = [
+        { dx: -2 * bubbleRadius, dy: 0 },
+        { dx: 2 * bubbleRadius, dy: 0 },
+        { dx: -bubbleRadius, dy: -2 * bubbleRadius },
+        { dx: bubbleRadius, dy: -2 * bubbleRadius },
+        { dx: -bubbleRadius, dy: 2 * bubbleRadius },
+        { dx: bubbleRadius, dy: 2 * bubbleRadius }
+    ];
+    for (const pos of positions) {
+      neighbors.push({ x: x + pos.dx, y: y + pos.dy });
+    }
+    return neighbors;
+  }
+
   window.onload = () => {
     checkLoginStatus();
     const homeButton = document.querySelector('nav button:first-child');
@@ -587,3 +987,7 @@
     }
   };
 </script>
+
+</body>
+</html>
+
