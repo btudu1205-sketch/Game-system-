@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chroma Dash - কালার ম্যাচ গেম</title>
+    <title>Hridoy Skill Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         /* CSS কোড: গেমের ডিজাইন */
@@ -13,23 +13,23 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #0d1a26;
+            background-color: #0d1a26; /* গাঢ় ডিজিটাল ব্যাকগ্রাউন্ড */
             color: #ecf0f1;
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Press Start 2P', cursive; /* ডিজিটাল ফন্ট */
             margin: 0;
             overflow: hidden;
             user-select: none;
             touch-action: manipulation;
         }
-
-        #game-container {
+        
+        #app-container {
             width: 95vw;
             max-width: 450px;
             height: 85vh;
-            background-color: #1a2b3c;
+            background-color: #1a2b3c; /* স্থির এবং মসৃণ ব্যাকগ্রাউন্ড কালার */
             border: 10px solid #ff00ff; /* নিয়ন ম্যাজেন্টা বর্ডার */
             border-radius: 10px;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.7);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.7); /* নিয়ন গ্লো */
             position: relative;
             display: flex;
             justify-content: center;
@@ -44,7 +44,7 @@
             height: 100%;
             top: 0;
             left: 0;
-            display: none;
+            display: none; /* শুরুতে লুকানো থাকবে */
         }
         
         #player {
@@ -78,6 +78,7 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
 
+        /* স্কোর এবং হাই স্কোর ড্যাশবোর্ড ডিজাইন */
         #score-info {
             position: absolute;
             top: 15px;
@@ -88,7 +89,7 @@
             z-index: 5;
         }
         #score-display, #high-score-display {
-            font-size: 1.2em;
+            font-size: 1.2em; 
             text-shadow: 0 0 5px #fff;
         }
         #score-display { color: #00ff62; }
@@ -162,6 +163,36 @@
         }
         #start-screen button:hover {
             background-color: #00a4d1;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        #controls button {
+            width: 150px;
+            padding: 12px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: #0d1a26;
+            color: #ecf0f1;
+            border: 2px solid #00c6ff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.5); /* বোতামে গ্লো */
+        }
+        #controls button:first-child {
+            margin-right: 20px;
+        }
+        #controls button:active {
+            transform: scale(0.95);
+            background-color: #1a2b3c;
         }
     </style>
 </head>
