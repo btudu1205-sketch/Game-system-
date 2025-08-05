@@ -1,294 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Monetag Earn Bot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    /* CSS Code (No changes needed) */
-    :root {
-      --primary-color: #4CAF50;
-      --secondary-color: #2196F3;
-      --background-color: #f0f2f5;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-radius: 12px;
-      --shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      background: var(--background-color);
-      color: var(--text-color);
-      padding-bottom: 70px;
-    }
-    .container {
-      padding: 20px;
-      max-width: 500px;
-      margin: auto;
-    }
-    nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      max-width: 500px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      justify-content: space-around;
-      background: var(--card-bg);
-      border-top: 1px solid #e0e0e0;
-      z-index: 1000;
-      box-shadow: var(--shadow);
-      border-radius: 15px 15px 0 0;
-    }
-    nav button {
-      flex: 1;
-      padding: 12px 8px;
-      font-size: 10px;
-      background: none;
-      border: none;
-      color: #777;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: color 0.3s ease;
-      position: relative;
-      cursor: pointer;
-    }
-    nav button.active-nav {
-      color: var(--primary-color);
-    }
-    nav button.active-nav::after {
-      content: '';
-      position: absolute;
-      top: -1px;
-      height: 3px;
-      width: 60%;
-      background: var(--primary-color);
-      border-radius: 0 0 5px 5px;
-    }
-    nav button i {
-      font-size: 20px;
-      margin-bottom: 4px;
-    }
-    .section {
-      display: none;
-      animation: fadeIn 0.5s ease-in-out;
-      padding: 20px;
-    }
-    .section.active {
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .card {
-      background: var(--card-bg);
-      padding: 20px;
-      margin-bottom: 15px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: transform 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    .card h3 {
-      margin: 0;
-      font-size: 16px;
-      color: #555;
-    }
-    .card .value {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-    .btn {
-      width: 100%;
-      padding: 15px;
-      font-size: 16px;
-      border: none;
-      border-radius: var(--border-radius);
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-    .btn:active {
-      transform: scale(0.98);
-    }
-    .btn-primary {
-      background: var(--primary-color);
-    }
-    .btn-secondary {
-      background: var(--secondary-color);
-    }
-    .btn-admin {
-      background: #FF9800;
-    }
-    .btn-owner {
-      background: #F44336;
-    }
-    .btn-terms {
-      background: #9E9E9E;
-    }
-    input {
-      width: calc(100% - 20px);
-      padding: 12px 10px;
-      margin-bottom: 15px;
-      border-radius: var(--border-radius);
-      border: 1px solid #ddd;
-      font-size: 16px;
-      transition: border-color 0.3s ease;
-    }
-    input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-    }
-    h2 {
-      text-align: center;
-      color: #444;
-      margin-bottom: 25px;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    .icon {
-      margin-right: 10px;
-    }
-    .task-item {
-      background: #e9f5e9;
-      padding: 15px;
-      border-radius: var(--border-radius);
-      margin-bottom: 10px;
-    }
-    .task-item span {
-      display: block;
-      margin-bottom: 10px;
-    }
-    .task-item form {
-      margin-top: 10px;
-    }
-    .task-link {
-      display: block;
-      margin-top: 10px;
-      text-align: center;
-      text-decoration: none;
-      color: var(--secondary-color);
-    }
-    .task-link i {
-      margin-right: 5px;
-    }
-    .auth-container {
-      max-width: 400px;
-      margin: 50px auto;
-      padding: 20px;
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      text-align: center;
-    }
-    .auth-container h2 {
-      margin-bottom: 20px;
-    }
-    .auth-container p {
-      margin-top: 20px;
-    }
-    .hidden {
-      display: none !important;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1001;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-      padding-top: 60px;
-    }
-    .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 350px;
-      border-radius: var(--border-radius);
-      text-align: center;
-    }
-    .close-btn {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .close-btn:hover, .close-btn:focus {
-      color: black;
-      text-decoration: none;
-    }
-    .modal-content input {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 20px;
-      letter-spacing: 5px;
-    }
-    .game-card {
-      background-color: #f5f5f5;
-      padding: 15px;
-      border-radius: var(--border-radius);
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .game-card h4 {
-      margin: 0;
-      font-size: 16px;
-      color: #444;
-    }
-    .game-card .btn-play {
-      background: var(--secondary-color);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-    }
-    #bubbleShooterGame {
-      display: none;
-      text-align: center;
-      margin-top: 20px;
-    }
-    #gameCanvas {
-      background: #e0f7fa;
-      border: 2px solid #00796b;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      margin-bottom: 10px;
-    }
-    #gameControls button {
-      background: var(--primary-color);
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Monetag Earn Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #28a745;
+            --secondary-color: #007bff;
+            --accent-color: #ffc107;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #343a40;
+            --light-text-color: #6c757d;
+            --border-radius: 12px;
+            --shadow: 0 5px 20px rgba(0,0,0,0.08);
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            padding-bottom: 80px;
+        }
+        
+        .container {
+            padding: 20px;
+            max-width: 550px;
+            margin: auto;
+        }
+
+        /* --- Navigation Bar --- */
+        nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 550px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            justify-content: space-around;
+            background: var(--card-bg);
+            border-top: 1px solid #e9ecef;
+            z-index: 1000;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+            border-radius: 15px 15px 0 0;
+        }
+        nav button {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 11px;
+            background: none;
+            border: none;
+            color: var(--light-text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: color var(--transition-speed) ease, transform 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        nav button:hover {
+            color: var(--primary-color);
+        }
+        nav button.active-nav {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        nav button.active-nav i {
+            transform: scale(1.1);
+        }
+        nav button i {
+            font-size: 22px;
+            margin-bottom: 4px;
+            transition: transform var(--transition-speed) ease;
+        }
+
+        /* --- Sections --- */
+        .section {
+            display: none;
+            animation: fadeIn 0.6s ease-in-out;
+            padding: 20px;
+        }
+        .section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Cards and UI Components --- */
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform var(--transition-speed) ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--light-text-color);
+        }
+        .card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color var(--transition-speed) ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn-primary { background: var(--primary-color); }
+        .btn-primary:hover { background: #218838; }
+        .btn-secondary { background: var(--secondary-color); }
+        .btn-secondary:hover { background: #0069d9; }
+        .btn-admin { background: #FF9800; }
+        .btn-admin:hover { background: #e68a00; }
+        .btn-owner { background: #dc3545; }
+        .btn-owner:hover { background: #c82333; }
+        .btn-terms { background: #6c757d; }
+        .btn-terms:hover { background: #5a6268; }
+
+        input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+            font-size: 16px;
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .icon {
+            margin-right: 10px;
+        }
+
+        .task-item {
+            background: #e9f5e9;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .task-item span {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .task-item .btn {
+            margin-top: 10px;
+        }
+        .task-item form {
+            margin-top: 15px;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .auth-container p {
+            margin-top: 20px;
+            color: var(--light-text-color);
+        }
+        .auth-container a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-container a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- Modal Styling --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            padding-top: 60px;
+            animation: fadeInModal 0.3s;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-btn:hover, .close-btn:focus { color: #333; text-decoration: none; }
+
+        .modal-content input {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 24px;
+            letter-spacing: 5px;
+            font-weight: 600;
+        }
+
+        /* --- Game Card Styling --- */
+        .game-card {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform var(--transition-speed) ease;
+        }
+        .game-card:hover {
+            transform: scale(1.02);
+            background-color: #e2e6ea;
+        }
+        .game-card h4 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--text-color);
+        }
+        .game-card .btn-play {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .game-card .btn-play:hover {
+            background: #0069d9;
+        }
+    </style>
 </head>
 <body>
 
@@ -442,9 +455,8 @@
 </nav>
 
 <script>
-  // আপনার Telegram Bot Token এবং আপনার Telegram Chat ID এখানে বসান।
-  const BOT_TOKEN = 'আপনার-বট-টোকেন-এখানে-বসবে'; 
-  const CHAT_ID = 'আপনার-চ্যাট-আইডি-এখানে-বসবে';
+  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
+  const CHAT_ID = '5965219037';
 
   let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
@@ -488,7 +500,7 @@
   }
 
   function showModal() {
-    document.getElementById('verificationModal').style.display = 'block';
+    document.getElementById('verificationModal').style.display = 'flex';
   }
   function closeModal() {
     document.getElementById('verificationModal').style.display = 'none';
@@ -511,6 +523,7 @@
     document.getElementById('loginSection').classList.remove('hidden');
     document.getElementById('registerSection').classList.add('hidden');
   }
+
   function showRegister() {
     document.getElementById('loginSection').classList.add('hidden');
     document.getElementById('registerSection').classList.remove('hidden');
@@ -530,8 +543,8 @@
         alert("❌ Password must be at least 8 characters long.");
         return;
     }
-    if (telegramChatId.length !== 10) {
-        alert("❌ Telegram Chat ID must be exactly 10 digits long.");
+    if (telegramChatId.length !== 10 || isNaN(telegramChatId)) {
+        alert("❌ Telegram Chat ID must be a 10-digit number.");
         return;
     }
     
@@ -599,7 +612,6 @@
       tasks = userData.tasks;
       ads = userData.ads;
       currentUserChatId = userData.chatId;
-
       document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
       updateUI();
     } else {
@@ -773,6 +785,7 @@
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Bubble Shooter Game</title>
           <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
           <style>
               body {
                   font-family: 'Poppins', sans-serif;
@@ -793,7 +806,7 @@
                   text-align: center;
               }
               h1 {
-                  color: #4CAF50;
+                  color: #28a745;
               }
               #gameCanvas {
                   background: #e0f7fa;
@@ -816,7 +829,7 @@
                   margin-top: 10px;
               }
               .controls button {
-                  background: #f44336;
+                  background: #dc3545;
                   color: white;
                   padding: 10px 20px;
                   border: none;
@@ -827,7 +840,7 @@
                   transition: background-color 0.3s;
               }
               .controls button:hover {
-                  background-color: #d32f2f;
+                  background-color: #c82333;
               }
               .shooter-preview {
                   width: 30px;
@@ -1158,35 +1171,3 @@
           </script>
       </body>
       </html>
-    `;
-  }
-  
-  window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'game-result') {
-        if (typeof balance === 'undefined') {
-            const userData = JSON.parse(localStorage.getItem(currentUsername));
-            if (userData) {
-                balance = userData.balance;
-            } else {
-                console.error("Could not load user data to update balance.");
-                return;
-            }
-        }
-        balance += event.data.points;
-        saveData();
-        updateUI();
-        alert(`Game finished! Your score was ${event.data.score}. You earned ${event.data.points} points. Status: ${event.data.status}.`);
-    }
-  });
-
-  window.onload = () => {
-    checkLoginStatus();
-    const homeButton = document.querySelector('nav button:first-child');
-    if (homeButton) {
-      showSection('home', homeButton);
-    }
-  };
-</script>
-
-</body>
-</html>
