@@ -455,8 +455,8 @@
 </nav>
 
 <script>
-  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
-  const CHAT_ID = '5965219037';
+  const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
+  const CHAT_ID = 'YOUR_CHAT_ID_HERE';
 
   let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
@@ -1171,3 +1171,35 @@
           </script>
       </body>
       </html>
+    `;
+  }
+  
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'game-result') {
+        if (typeof balance === 'undefined') {
+            const userData = JSON.parse(localStorage.getItem(currentUsername));
+            if (userData) {
+                balance = userData.balance;
+            } else {
+                console.error("Could not load user data to update balance.");
+                return;
+            }
+        }
+        balance += event.data.points;
+        saveData();
+        updateUI();
+        alert(`Game finished! Your score was ${event.data.score}. You earned ${event.data.points} points. Status: ${event.data.status}.`);
+    }
+  });
+
+  window.onload = () => {
+    checkLoginStatus();
+    const homeButton = document.querySelector('nav button:first-child');
+    if (homeButton) {
+      showSection('home', homeButton);
+    }
+  };
+</script>
+
+</body>
+</html>
