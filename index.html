@@ -3,342 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chroma Dash - কালার ম্যাচ গেম</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>ব্লক ব্লাস্ট</title>
     <style>
-        /* CSS কোড: গেমের ডিজাইন */
         body {
+            font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
-            background-color: #0d1a26;
-            color: #ecf0f1;
-            font-family: 'Press Start 2P', cursive;
+            background-color: #f0f0f0;
             margin: 0;
-            overflow: hidden;
-            user-select: none;
-            touch-action: manipulation;
         }
 
-        #game-container {
-            width: 95vw;
-            max-width: 450px;
-            height: 85vh;
-            background-color: #1a2b3c;
-            border: 10px solid #ff00ff; /* নিয়ন ম্যাজেন্টা বর্ডার */
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.7);
-            position: relative;
+        .game-container {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        #game-area {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            display: none;
-        }
-        
-        #player {
-            width: 60px;
-            height: 60px;
-            background-color: #00c6ff; /* প্রাথমিক রঙ: নিয়ন নীল */
-            border-radius: 50%;
-            box-shadow: 0 0 20px #00c6ff;
-            position: absolute;
-            bottom: 50px;
-            left: calc(50% - 30px);
-            transition: background-color 0.2s ease-out, box-shadow 0.2s ease-out;
-            z-index: 3;
-        }
-
-        .obstacle {
-            width: 100%;
-            height: 40px;
-            position: absolute;
-            top: -50px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 2;
-        }
-
-        .obstacle-section {
-            width: 30%;
-            height: 100%;
-            border-radius: 5px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-        }
-
-        #score-info {
-            position: absolute;
-            top: 15px;
-            width: 90%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 5;
-        }
-        #score-display, #high-score-display {
-            font-size: 1.2em;
-            text-shadow: 0 0 5px #fff;
-        }
-        #score-display { color: #00ff62; }
-        #high-score-display { color: #00c6ff; }
-        
-        .message-box {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
+            gap: 20px;
+            border: 2px solid #333;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border: 4px solid #ff00ff;
+            background-color: #fff;
             border-radius: 10px;
-            text-align: center;
-            z-index: 10;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-        }
-        .message-box h2 {
-            margin: 0 0 10px;
-            color: #ff6a00;
-            font-size: 1.8em;
-            text-shadow: 0 0 5px #ff6a00;
-        }
-        .message-box p {
-            font-size: 1.1em;
-            margin: 0 0 20px;
-        }
-        .message-box button {
-            padding: 10px 20px;
-            font-size: 1em;
-            font-weight: bold;
-            background-color: #00ff62;
-            color: #0d1a26;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        #start-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 20;
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 40px);
+            grid-template-rows: repeat(8, 40px);
+            border: 2px solid #666;
+            background-color: #ccc;
         }
-        #start-screen h1 {
-            font-size: 1.5em; 
-            text-shadow: 0 0 10px #00ff62;
-            margin-bottom: 20px;
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #999;
+            box-sizing: border-box; /* Ensures padding/border doesn't affect total size */
         }
-        #start-screen button {
-            padding: 15px 30px;
-            font-size: 1.5em;
-            font-weight: bold;
-            background-color: #00c6ff;
-            color: #0d1a26;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            box-shadow: 0 0 10px #00c6ff;
+
+        .cell.filled {
+            background-color: #3498db; /* Filled block color */
         }
-        #start-screen button:hover {
-            background-color: #00a4d1;
+
+        .sidebar {
+            width: 150px;
+            padding: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+        }
+
+        #next-blocks {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="start-screen">
-            <h1>Chroma Dash</h1>
-            <p style="font-size: 1em;">রঙ মিলিয়ে স্কোর করুন!</p>
-            <button id="start-btn">শুরু করুন</button>
-        </div>
-
-        <div id="game-area">
-            <div id="player"></div>
-            <div id="score-info">
-                <div id="score-display">স্কোর: 0</div>
-                <div id="high-score-display">সর্বোচ্চ স্কোর: 0</div>
-            </div>
-            
-            <div id="game-over-box" class="message-box" style="display: none;">
-                <h2>গেম শেষ!</h2>
-                <p>আপনার স্কোর: <span id="final-score">0</span></p>
-                <p>সর্বোচ্চ স্কোর: <span id="final-high-score">0</span></p>
-                <button id="restart-btn">আবার খেলুন</button>
-            </div>
+    <h1>ব্লক ব্লাস্ট</h1>
+    <div class="game-container">
+        <div id="game-board"></div>
+        <div class="sidebar">
+            <p>স্কোর: <span id="score">0</span></p>
+            <div id="next-blocks"></div>
         </div>
     </div>
-    
+
     <script>
-        const gameContainer = document.getElementById('game-container');
-        const gameArea = document.getElementById('game-area');
-        const player = document.getElementById('player');
-        const scoreDisplay = document.getElementById('score-display');
-        const highScoreDisplay = document.getElementById('high-score-display');
-        const startScreen = document.getElementById('start-screen');
-        const startBtn = document.getElementById('start-btn');
-        const gameOverBox = document.getElementById('game-over-box');
-        const finalScoreDisplay = document.getElementById('final-score');
-        const finalHighScoreDisplay = document.getElementById('final-high-score');
-        const restartBtn = document.getElementById('restart-btn');
+        document.addEventListener('DOMContentLoaded', () => {
+            const board = document.getElementById('game-board');
+            const scoreDisplay = document.getElementById('score');
+            const boardSize = 8;
+            let grid = [];
+            let score = 0;
 
-        const colors = ['#00c6ff', '#00ff62', '#ff6a00', '#ff00ff']; // নিয়ন নীল, সবুজ, কমলা, ম্যাজেন্টা
-        let score = 0;
-        let highScore = localStorage.getItem('highScore') || 0;
-        let isGameOver = false;
-        let isGamePaused = true;
-        let gameSpeed = 3;
-        const maxSpeed = 10;
-        let animationFrameId;
-        const obstacleSpawnInterval = 1500;
-        let lastObstacleTime = 0;
-
-        function updateHighScore() {
-            highScoreDisplay.innerText = "সর্বোচ্চ স্কোর: " + highScore;
-        }
-
-        function switchPlayerColor() {
-            if (isGameOver || isGamePaused) return;
-            const currentColor = player.style.backgroundColor;
-            const currentIndex = colors.indexOf(currentColor);
-            const newIndex = (currentIndex + 1) % colors.length;
-            player.style.backgroundColor = colors[newIndex];
-            player.style.boxShadow = `0 0 20px ${colors[newIndex]}`;
-        }
-        
-        function createObstacle() {
-            const obstacle = document.createElement('div');
-            obstacle.classList.add('obstacle');
-            
-            const shuffledColors = [...colors].sort(() => 0.5 - Math.random());
-            
-            shuffledColors.forEach(color => {
-                const section = document.createElement('div');
-                section.classList.add('obstacle-section');
-                section.style.backgroundColor = color;
-                section.style.boxShadow = `0 0 10px ${color}`;
-                obstacle.appendChild(section);
-            });
-            
-            gameContainer.appendChild(obstacle);
-        }
-
-        function gameLoop(timestamp) {
-            if (isGameOver || isGamePaused) {
-                cancelAnimationFrame(animationFrameId);
-                return;
+            // গেম বোর্ড তৈরি করা
+            function createBoard() {
+                for (let i = 0; i < boardSize; i++) {
+                    grid[i] = [];
+                    for (let j = 0; j < boardSize; j++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        cell.dataset.x = j;
+                        cell.dataset.y = i;
+                        board.appendChild(cell);
+                        grid[i][j] = 0; // 0 = খালি সেল
+                    }
+                }
             }
 
-            const obstacles = document.querySelectorAll('.obstacle');
-            
-            if (timestamp - lastObstacleTime > obstacleSpawnInterval / (gameSpeed / 3)) {
-                createObstacle();
-                lastObstacleTime = timestamp;
-            }
-
-            const playerRect = player.getBoundingClientRect();
-            const playerColor = player.style.backgroundColor;
-            
-            obstacles.forEach(obstacle => {
-                let obstacleTop = parseFloat(obstacle.style.top);
-                obstacleTop += gameSpeed;
-                obstacle.style.top = obstacleTop + 'px';
-
-                const obstacleRect = obstacle.getBoundingClientRect();
+            // একটি সারি বা কলাম পূর্ণ হয়েছে কিনা তা চেক করার ফাংশন
+            function checkAndClearLines() {
+                let linesCleared = 0;
                 
-                // সংঘর্ষ পরীক্ষা
-                if (playerRect.bottom > obstacleRect.top && playerRect.top < obstacleRect.bottom) {
-                    const sections = obstacle.querySelectorAll('.obstacle-section');
-                    let passed = false;
-                    
-                    sections.forEach(section => {
-                        const sectionRect = section.getBoundingClientRect();
-                        if (
-                            playerRect.left < sectionRect.right &&
-                            playerRect.right > sectionRect.left &&
-                            playerRect.bottom > sectionRect.top &&
-                            playerRect.top < sectionRect.bottom
-                        ) {
-                            if (playerColor === section.style.backgroundColor) {
-                                passed = true;
-                            } else {
-                                gameOver();
-                            }
+                // সারি চেক করা
+                for (let i = 0; i < boardSize; i++) {
+                    if (grid[i].every(cell => cell === 1)) {
+                        for (let j = 0; j < boardSize; j++) {
+                            grid[i][j] = 0;
+                            const cellElement = board.querySelector(`[data-x="${j}"][data-y="${i}"]`);
+                            cellElement.classList.remove('filled');
                         }
-                    });
+                        linesCleared++;
+                    }
+                }
 
-                    if (obstacleTop > gameContainer.clientHeight) {
-                        score++;
-                        scoreDisplay.innerText = "স্কোর: " + score;
-                        if (gameSpeed < maxSpeed) {
-                            gameSpeed += 0.1;
+                // কলাম চেক করা
+                for (let j = 0; j < boardSize; j++) {
+                    let columnIsFull = true;
+                    for (let i = 0; i < boardSize; i++) {
+                        if (grid[i][j] === 0) {
+                            columnIsFull = false;
+                            break;
                         }
-                        obstacle.remove();
+                    }
+                    if (columnIsFull) {
+                        for (let i = 0; i < boardSize; i++) {
+                            grid[i][j] = 0;
+                            const cellElement = board.querySelector(`[data-x="${j}"][data-y="${i}"]`);
+                            cellElement.classList.remove('filled');
+                        }
+                        linesCleared++;
+                    }
+                }
+                
+                if (linesCleared > 0) {
+                    score += linesCleared * 100;
+                    scoreDisplay.textContent = score;
+                }
+            }
+            
+            createBoard();
+            
+            // সেল-এ ক্লিক করে ব্লক বসানোর লজিক
+            board.addEventListener('click', (e) => {
+                const cell = e.target;
+                if (cell.classList.contains('cell')) {
+                    const x = parseInt(cell.dataset.x);
+                    const y = parseInt(cell.dataset.y);
+                    
+                    if (grid[y][x] === 0) {
+                        cell.classList.add('filled');
+                        grid[y][x] = 1;
+                        score += 10;
+                        scoreDisplay.textContent = score;
+                        checkAndClearLines(); // লাইন চেক করা
                     }
                 }
             });
-            
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
-
-        function startGame() {
-            isGamePaused = false;
-            isGameOver = false;
-            score = 0;
-            gameSpeed = 3;
-            scoreDisplay.innerText = "স্কোর: 0";
-            gameOverBox.style.display = 'none';
-            startScreen.style.display = 'none';
-            gameArea.style.display = 'block';
-
-            player.style.backgroundColor = colors[0];
-            player.style.boxShadow = `0 0 20px ${colors[0]}`;
-            document.querySelectorAll('.obstacle').forEach(obstacle => obstacle.remove());
-
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
-        
-        function gameOver() {
-            isGameOver = true;
-            isGamePaused = true;
-            cancelAnimationFrame(animationFrameId);
-
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('highScore', highScore);
-            }
-            
-            finalScoreDisplay.innerText = score;
-            finalHighScoreDisplay.innerText = highScore;
-            gameOverBox.style.display = 'block';
-            updateHighScore();
-        }
-
-        gameContainer.addEventListener('click', switchPlayerColor);
-        startBtn.addEventListener('click', startGame);
-        restartBtn.addEventListener('click', startGame);
-        
-        updateHighScore();
+        });
     </script>
 </body>
 </html>
