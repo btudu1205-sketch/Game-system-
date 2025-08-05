@@ -1,48 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Monetag Earn Bot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
   <style>
+    /* Global Styles & Variables */
+    :root {
+      --primary-color: #4CAF50;
+      --secondary-color: #2196F3;
+      --background-color: #f0f2f5;
+      --card-bg-color: #ffffff;
+      --text-color: #333333;
+      --secondary-text-color: #555555;
+      --light-text-color: #777777;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --transition-speed: 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
-      background: #f0f2f5;
-      margin: 0;
-      padding-bottom: 70px;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      padding-bottom: 80px; /* Space for the fixed navigation bar */
     }
-    .section {
-      display: none;
+    
+    /* Main Layout */
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
       padding: 20px;
     }
+
+    /* Section Styling */
+    .section {
+      display: none;
+      padding: 20px 0;
+    }
+
     .section.active {
       display: block;
     }
+
     h2 {
       font-size: 24px;
-      margin-bottom: 15px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+    
+    .icon {
+      color: var(--primary-color);
+    }
+
+    /* Card Styling */
     .card {
-      background: white;
+      background: var(--card-bg-color);
       padding: 20px;
       margin-bottom: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      transition: transform var(--transition-speed);
     }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: var(--secondary-text-color);
+    }
+
+    .card .value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    
+    .card p {
+      color: var(--light-text-color);
+      font-size: 14px;
+    }
+    
+    /* Button Styling */
     .btn {
       padding: 12px 20px;
       font-size: 16px;
+      font-weight: 600;
       border: none;
-      border-radius: 8px;
-      color: white;
-      font-weight: bold;
+      border-radius: var(--border-radius);
+      color: var(--card-bg-color);
       cursor: pointer;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      margin-top: 10px;
     }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+    }
+    
     .btn-secondary {
-      background-color: #2196F3;
+      background-color: var(--secondary-color);
     }
+    
+    /* Input Fields */
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    /* Navigation Bar */
     nav {
       position: fixed;
       bottom: 0;
@@ -52,120 +148,170 @@
       transform: translateX(-50%);
       display: flex;
       justify-content: space-around;
-      background: white;
-      border-top: 1px solid #ccc;
+      background: var(--card-bg-color);
+      border-top: 1px solid #eee;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
       z-index: 1000;
       padding: 10px 0;
     }
+
     nav button {
       background: none;
       border: none;
       font-size: 10px;
-      color: #777;
+      color: var(--light-text-color);
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 5px;
       cursor: pointer;
+      transition: color var(--transition-speed);
     }
+
+    nav button:hover {
+      color: var(--secondary-text-color);
+    }
+
     nav button.active-nav {
-      color: #4CAF50;
+      color: var(--primary-color);
+      font-weight: 600;
     }
+
     nav button i {
       font-size: 20px;
     }
+    
+    .support-links .btn {
+        margin-bottom: 10px;
+    }
+
   </style>
 </head>
 <body>
 
-<div id="mainApp">
-  <!-- Dashboard Section -->
-  <div id="home" class="section active">
-    <h2><i class="fas fa-home icon"></i> Dashboard</h2>
-    <div class="card"><h3>Balance</h3><span class="value" id="balance">0</span></div>
-    <div class="card"><h3>Total Withdraw</h3><span class="value">0</span></div>
-    <div class="card"><h3>Total Tasks</h3><span class="value">0</span></div>
-    <div class="card"><h3>Ads Watched</h3><span class="value">0</span></div>
-  </div>
+<div class="container">
+  <div id="mainApp">
+    <section id="home" class="section active">
+      <h2><i class="fas fa-home icon"></i> Dashboard</h2>
+      <div class="card">
+        <h3>Balance</h3>
+        <span class="value" id="balance">0</span>
+      </div>
+      <div class="card">
+        <h3>Total Withdraw</h3>
+        <span class="value">0</span>
+      </div>
+      <div class="card">
+        <h3>Total Tasks</h3>
+        <span class="value">0</span>
+      </div>
+      <div class="card">
+        <h3>Ads Watched</h3>
+        <span class="value">0</span>
+      </div>
+    </section>
 
-  <!-- Earn Section -->
-  <div id="earn" class="section">
-    <h2><i class="fas fa-dollar-sign icon"></i> Earn</h2>
-    <div class="card">
-      <h3>Watch Ads</h3>
-      <button class="btn btn-secondary">Watch Now</button>
-    </div>
-  </div>
+    <section id="earn" class="section">
+      <h2><i class="fas fa-dollar-sign icon"></i> Earn</h2>
+      <div class="card">
+        <h3>Watch Ads</h3>
+        <button class="btn btn-secondary">Watch Now</button>
+      </div>
+    </section>
 
-  <!-- Withdraw Section -->
-  <div id="withdrawSection" class="section">
-    <h2><i class="fas fa-wallet icon"></i> Withdraw</h2>
-    <div class="card">
-      <input type="text" placeholder="Number">
-      <input type="number" placeholder="Amount">
-      <button class="btn btn-secondary">Submit</button>
-    </div>
-  </div>
+    <section id="withdrawSection" class="section">
+      <h2><i class="fas fa-wallet icon"></i> Withdraw</h2>
+      <div class="card">
+        <h3>Withdraw to your account</h3>
+        <input type="text" placeholder="Number" aria-label="Phone Number">
+        <input type="number" placeholder="Amount" aria-label="Withdraw Amount">
+        <button class="btn btn-secondary">Submit</button>
+      </div>
+    </section>
 
-  <!-- Support Section -->
-  <div id="context" class="section">
-    <h2><i class="fas fa-headset icon"></i> Support</h2>
-    <div class="card">
-      <a href="https://t.me/admin_link_here" target="_blank"><button class="btn btn-secondary">Admin Support</button></a><br><br>
-      <a href="https://t.me/owner_link_here" target="_blank"><button class="btn btn-secondary">Owner Support</button></a>
-    </div>
-  </div>
+    <section id="context" class="section">
+      <h2><i class="fas fa-headset icon"></i> Support</h2>
+      <div class="card support-links">
+        <h3>Contact Support</h3>
+        <a href="https://t.me/admin_link_here" target="_blank" class="btn btn-secondary" aria-label="Admin Support Link">
+          <i class="fab fa-telegram-plane"></i> Admin Support
+        </a>
+        <a href="https://t.me/owner_link_here" target="_blank" class="btn btn-secondary" aria-label="Owner Support Link">
+          <i class="fab fa-telegram-plane"></i> Owner Support
+        </a>
+      </div>
+    </section>
 
-  <!-- Profile Section -->
-  <div id="profile" class="section">
-    <h2><i class="fas fa-user-circle icon"></i> Profile</h2>
-    <div class="card"><h3>Username</h3><span class="value">Guest</span></div>
-    <div class="card"><h3>Total Withdraw</h3><span class="value">0</span></div>
-    <div class="card"><h3>Total Tasks</h3><span class="value">0</span></div>
-    <div class="card"><h3>Total Ads Watched</h3><span class="value">0</span></div>
-  </div>
+    <section id="profile" class="section">
+      <h2><i class="fas fa-user-circle icon"></i> Profile</h2>
+      <div class="card">
+        <h3>Username</h3>
+        <span class="value">Guest</span>
+      </div>
+      <div class="card">
+        <h3>Total Withdraw</h3>
+        <span class="value">0</span>
+      </div>
+      <div class="card">
+        <h3>Total Tasks</h3>
+        <span class="value">0</span>
+      </div>
+      <div class="card">
+        <h3>Total Ads Watched</h3>
+        <span class="value">0</span>
+      </div>
+    </section>
 
-  <!-- ✅ Game Section -->
-  <div id="gameSection" class="section">
-    <h2><i class="fas fa-gamepad icon"></i> Play Game</h2>
-    <div class="card">
-      <h3>Mini Puzzle Challenge</h3>
-      <p>Play a fun puzzle game and earn points if you complete it!</p>
-      <a href="https://games.crazygames.com/en_US/candy-crush" target="_blank" style="text-decoration:none;">
-        <button class="btn btn-secondary"><i class="fas fa-play-circle"></i> Play Now</button>
-      </a>
-    </div>
+    <section id="gameSection" class="section">
+      <h2><i class="fas fa-gamepad icon"></i> Play Game</h2>
+      <div class="card">
+        <h3>Mini Puzzle Challenge</h3>
+        <p>Play a fun puzzle game and earn points if you complete it!</p>
+        <a href="https://games.crazygames.com/en_US/candy-crush" target="_blank" class="btn btn-primary" aria-label="Play Game">
+          <i class="fas fa-play-circle"></i> Play Now
+        </a>
+      </div>
+    </section>
   </div>
 </div>
 
-<!-- ✅ Navigation Menu -->
 <nav id="appNav">
-  <button onclick="showSection('home', this)" class="active-nav">
-    <i class="fas fa-home"></i><span>Home</span>
+  <button onclick="showSection('home', this)" class="active-nav" aria-label="Home">
+    <i class="fas fa-home"></i>
+    <span>Home</span>
   </button>
-  <button onclick="showSection('earn', this)">
-    <i class="fas fa-dollar-sign"></i><span>Earn</span>
+  <button onclick="showSection('earn', this)" aria-label="Earn">
+    <i class="fas fa-dollar-sign"></i>
+    <span>Earn</span>
   </button>
-  <button onclick="showSection('withdrawSection', this)">
-    <i class="fas fa-wallet"></i><span>Withdraw</span>
+  <button onclick="showSection('withdrawSection', this)" aria-label="Withdraw">
+    <i class="fas fa-wallet"></i>
+    <span>Withdraw</span>
   </button>
-  <button onclick="showSection('context', this)">
-    <i class="fas fa-headset"></i><span>Support</span>
+  <button onclick="showSection('context', this)" aria-label="Support">
+    <i class="fas fa-headset"></i>
+    <span>Support</span>
   </button>
-  <button onclick="showSection('profile', this)">
-    <i class="fas fa-user-circle"></i><span>Profile</span>
+  <button onclick="showSection('profile', this)" aria-label="Profile">
+    <i class="fas fa-user-circle"></i>
+    <span>Profile</span>
   </button>
-  <button onclick="showSection('gameSection', this)">
-    <i class="fas fa-gamepad"></i><span>Game</span>
+  <button onclick="showSection('gameSection', this)" aria-label="Game">
+    <i class="fas fa-gamepad"></i>
+    <span>Game</span>
   </button>
 </nav>
 
-<!-- ✅ Section Controller Script -->
 <script>
   function showSection(id, element) {
+    // Hide all sections
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    // Show the selected section
     document.getElementById(id).classList.add("active");
 
+    // Remove active class from all navigation buttons
     document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
+    // Add active class to the clicked button
     element.classList.add("active-nav");
   }
 </script>
