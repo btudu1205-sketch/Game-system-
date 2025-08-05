@@ -266,7 +266,6 @@
       cursor: pointer;
       border: none;
     }
-    /* New styles for Bubble Shooter game */
     #bubbleShooterGame {
       display: none;
       text-align: center;
@@ -651,10 +650,6 @@
   }
 
   function showRewardedAd() {
-    // This is a placeholder for your Monetag Rewarded Ad code.
-    // Please replace this with the actual code provided by Monetag.
-    // The following code simulates a successful ad view.
-
     alert("Simulating ad view... Please wait.");
     setTimeout(() => {
         balance += 10;
@@ -779,10 +774,10 @@
   function createBubbleGrid() {
     bubbles = [];
     for (let row = 0; row < gridRows; row++) {
-      for (let col = 0; col < gridCols - (row % 2); col++) {
+      for (let col = 0; col < gridCols; col++) {
         const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
-        const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2 + bubbleSpacing);
-        const y = row * (bubbleRadius * 2 + bubbleSpacing) + bubbleRadius + bubbleSpacing;
+        const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + bubbleSpacing : bubbleRadius * 2);
+        const y = row * (bubbleRadius * 2 + bubbleSpacing) + bubbleRadius;
         bubbles.push({ x, y, color, radius: bubbleRadius });
       }
     }
@@ -841,38 +836,24 @@
       shooterBubble.x += shooterBubble.speedX;
       shooterBubble.y += shooterBubble.speedY;
 
-      // Bounce off walls
       if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
         shooterBubble.speedX *= -1;
       }
 
-      // Check for collision with top or other bubbles
       let collision = false;
+      let collidedBubble = null;
+
       if (shooterBubble.y - shooterBubble.radius <= 0) {
         collision = true;
       } else {
-        for (let i = 0; i < bubbles.length; i++) {
-          const dx = shooterBubble.x - bubbles[i].x;
-          const dy = shooterBubble.y - bubbles[i].y;
+        for (const bubble of bubbles) {
+          const dx = shooterBubble.x - bubble.x;
+          const dy = shooterBubble.y - bubble.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < bubbleRadius * 2) {
             collision = true;
-            
-            // Pop logic
-            if (shooterBubble.color === bubbles[i].color) {
-              const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
-              if (bubblesToPop.length >= 2) { // 2 matching bubbles + the new one
-                bubblesToPop.forEach(popBubble => {
-                  bubbles = bubbles.filter(b => b !== popBubble);
-                });
-                currentScore += (bubblesToPop.length + 1) * 10;
-              } else {
-                bubbles.push({ x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius });
-              }
-            } else {
-              bubbles.push({ x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius });
-            }
+            collidedBubble = bubble;
             break;
           }
         }
@@ -880,11 +861,23 @@
 
       if (collision) {
           shooterBubble.isShot = false;
+
+          const newBubble = { x: shooterBubble.x, y: shooterBubble.y, color: shooterBubble.color, radius: shooterBubble.radius };
+          bubbles.push(newBubble);
+
+          const connected = findConnectedBubbles(newBubble);
+          if (connected.length >= 3) {
+            bubbles = bubbles.filter(bubble => !connected.includes(bubble));
+            currentScore += connected.length * 10;
+          }
+          
+          shooterBubble.y = canvas.height - 30;
+          shooterBubble.color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+
           shotCount++;
-          if (shotCount % 3 === 0) {
+          if (shotCount % 5 === 0 && shotCount > 0) {
             dropBubbles();
           }
-          createShooterBubble();
       }
     }
     
@@ -938,45 +931,36 @@
       }
     }
   }
-
-  function findConnectedBubbles(x, y, color) {
-    const stack = [{x, y}];
-    const visited = new Set();
-    const connected = [];
-
-    while (stack.length > 0) {
-      const current = stack.pop();
-      const key = `${current.x},${current.y}`;
-
-      if (visited.has(key)) continue;
-      visited.add(key);
-
-      const bubble = bubbles.find(b => b.x === current.x && b.y === current.y);
-      if (bubble && bubble.color === color) {
-        connected.push(bubble);
-
-        for (const neighbor of getNeighbors(current.x, current.y)) {
-          stack.push(neighbor);
-        }
-      }
-    }
-    return connected;
-  }
   
-  function getNeighbors(x, y) {
-    const neighbors = [];
-    const positions = [
-        { dx: -2 * bubbleRadius, dy: 0 },
-        { dx: 2 * bubbleRadius, dy: 0 },
-        { dx: -bubbleRadius, dy: -2 * bubbleRadius },
-        { dx: bubbleRadius, dy: -2 * bubbleRadius },
-        { dx: -bubbleRadius, dy: 2 * bubbleRadius },
-        { dx: bubbleRadius, dy: 2 * bubbleRadius }
-    ];
-    for (const pos of positions) {
-      neighbors.push({ x: x + pos.dx, y: y + pos.dy });
-    }
-    return neighbors;
+  function findConnectedBubbles(startBubble) {
+      const stack = [startBubble];
+      const visited = new Set();
+      const connected = [];
+
+      while (stack.length > 0) {
+          const currentBubble = stack.pop();
+          const key = `${Math.round(currentBubble.x)},${Math.round(currentBubble.y)}`;
+
+          if (visited.has(key)) continue;
+          visited.add(key);
+
+          if (currentBubble.color === startBubble.color) {
+              connected.push(currentBubble);
+
+              for (const otherBubble of bubbles) {
+                  if (otherBubble !== currentBubble) {
+                      const dx = otherBubble.x - currentBubble.x;
+                      const dy = otherBubble.y - currentBubble.y;
+                      const distance = Math.sqrt(dx * dx + dy * dy);
+
+                      if (distance < bubbleRadius * 2 + 5) {
+                          stack.push(otherBubble);
+                      }
+                  }
+              }
+          }
+      }
+      return connected;
   }
 
   window.onload = () => {
