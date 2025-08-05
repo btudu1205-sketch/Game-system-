@@ -12,7 +12,11 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #34495e; /* নতুন ব্যাকগ্রাউন্ড কালার: গাঢ় নীল */
+            /* নতুন ব্যাকগ্রাউন্ড ইমেজ */
+            background-image: url('[attachment_0](attachment)');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -25,7 +29,7 @@
             width: 95vw;
             max-width: 450px;
             height: 85vh;
-            background-color: #2c3e50; /* নতুন গেম কন্টেইনার ব্যাকগ্রাউন্ড কালার: গাঢ় নীল */
+            background-color: rgba(44, 62, 80, 0.8); /* গাঢ় নীল এবং স্বচ্ছ */
             border: 10px solid #7f8c8d;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -248,7 +252,6 @@
                     
                     if (gameSpeed < maxSpeed) {
                         gameSpeed += 0.5;
-                        // গতি বাড়ার সাথে সাথে রাস্তার অ্যানিমেশনও দ্রুত হবে
                         document.querySelector('#road-lines').style.animationDuration = (0.5 / (gameSpeed / 5)) + 's';
                         document.querySelector('#side-lines').style.animationDuration = (0.5 / (gameSpeed / 5)) + 's';
                     }
