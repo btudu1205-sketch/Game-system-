@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hridoy Skill Game</title>
+    <title>Chroma Dash - কালার ম্যাচ গেম</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         /* CSS কোড: গেমের ডিজাইন */
@@ -13,23 +13,23 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #0d1a26; /* গাঢ় ডিজিটাল ব্যাকগ্রাউন্ড */
+            background-color: #0d1a26;
             color: #ecf0f1;
-            font-family: 'Press Start 2P', cursive; /* ডিজিটাল ফন্ট */
+            font-family: 'Press Start 2P', cursive;
             margin: 0;
             overflow: hidden;
             user-select: none;
             touch-action: manipulation;
         }
-        
-        #app-container {
+
+        #game-container {
             width: 95vw;
             max-width: 450px;
             height: 85vh;
-            background-color: #1a2b3c; /* স্থির এবং মসৃণ ব্যাকগ্রাউন্ড কালার */
-            border: 10px solid #00c6ff; /* নিয়ন নীল বর্ডার */
+            background-color: #1a2b3c;
+            border: 10px solid #ff00ff; /* নিয়ন ম্যাজেন্টা বর্ডার */
             border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 198, 255, 0.7); /* নিয়ন গ্লো */
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.7);
             position: relative;
             display: flex;
             justify-content: center;
@@ -44,74 +44,40 @@
             height: 100%;
             top: 0;
             left: 0;
-            display: none; /* শুরুতে লুকানো থাকবে */
+            display: none;
         }
         
-        #road-lines, #side-lines {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-size: 100% 200px;
-            z-index: 1;
-        }
-        #road-lines {
-            background-image: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0.7) 60%, transparent 60%);
-            animation: road-scroll 0.5s infinite linear;
-        }
-        #side-lines {
-            background-image: linear-gradient(to right, #00ff62 4px, transparent 4px), linear-gradient(to right, transparent 98%, #00ff62 98%); /* নিয়ন সবুজ লাইন */
-            box-shadow: 0 0 10px #00ff62, inset 0 0 10px #00ff62;
-            background-size: 100% 100%;
-            animation: road-scroll 0.5s infinite linear;
-        }
-
-        @keyframes road-scroll {
-            0% { background-position-y: 0; }
-            100% { background-position-y: 200px; }
-        }
-
-        #bike {
-            width: 50px;
-            height: 100px;
-            background-color: #ff00ff; /* নিয়ন ম্যাজেন্টা বাইক */
-            border-radius: 10px 10px 20px 20px;
-            box-shadow: 0 0 20px #ff00ff; /* নিয়ন গ্লো */
-            position: absolute;
-            bottom: 30px;
-            left: calc(50% - 25px);
-            transition: left 0.1s ease-out;
-            z-index: 3;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-        }
-        /* বাইকের চাকার ডিজাইন */
-        #bike::before, #bike::after {
-            content: '';
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background-color: #00c6ff;
+        #player {
+            width: 60px;
+            height: 60px;
+            background-color: #00c6ff; /* প্রাথমিক রঙ: নিয়ন নীল */
             border-radius: 50%;
-            border: 2px solid #00c6ff;
-            box-shadow: 0 0 5px #00c6ff;
+            box-shadow: 0 0 20px #00c6ff;
+            position: absolute;
+            bottom: 50px;
+            left: calc(50% - 30px);
+            transition: background-color 0.2s ease-out, box-shadow 0.2s ease-out;
+            z-index: 3;
         }
-        #bike::before { top: 15px; }
-        #bike::after { bottom: 10px; }
 
         .obstacle {
-            width: 60px;
-            height: 30px;
-            background-color: #ff6a00; /* নিয়ন কমলা বাধা */
-            border: 2px solid #ff6a00;
-            border-radius: 5px;
-            box-shadow: 0 0 15px #ff6a00;
+            width: 100%;
+            height: 40px;
             position: absolute;
             top: -50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             z-index: 2;
         }
 
-        /* স্কোর এবং হাই স্কোর ড্যাশবোর্ড ডিজাইন */
+        .obstacle-section {
+            width: 30%;
+            height: 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
         #score-info {
             position: absolute;
             top: 15px;
@@ -122,44 +88,11 @@
             z-index: 5;
         }
         #score-display, #high-score-display {
-            font-size: 1.2em; /* ফন্ট সাইজ কমানো হয়েছে যাতে একসাথে দেখা যায় */
-            color: #00ff62;
-            text-shadow: 0 0 5px #00ff62;
-        }
-        #high-score-display {
-            color: #00c6ff;
-            text-shadow: 0 0 5px #00c6ff;
-        }
-        
-        #controls {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-        #controls button {
-            width: 150px;
-            padding: 12px 0;
             font-size: 1.2em;
-            font-weight: bold;
-            background-color: #0d1a26;
-            color: #ecf0f1;
-            border: 2px solid #00c6ff;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 0 10px rgba(0, 198, 255, 0.5); /* বোতামে গ্লো */
+            text-shadow: 0 0 5px #fff;
         }
-        #controls button:first-child {
-            margin-right: 20px;
-        }
-        #controls button:active {
-            transform: scale(0.95);
-            background-color: #1a2b3c;
-        }
+        #score-display { color: #00ff62; }
+        #high-score-display { color: #00c6ff; }
         
         .message-box {
             position: absolute;
@@ -169,11 +102,11 @@
             width: 80%;
             padding: 20px;
             background-color: rgba(0, 0, 0, 0.8);
-            border: 4px solid #00c6ff;
+            border: 4px solid #ff00ff;
             border-radius: 10px;
             text-align: center;
             z-index: 10;
-            box-shadow: 0 0 20px rgba(0, 198, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
         }
         .message-box h2 {
             margin: 0 0 10px;
@@ -233,16 +166,15 @@
     </style>
 </head>
 <body>
-    <div id="app-container">
+    <div id="game-container">
         <div id="start-screen">
-            <h1>Hridoy Skill Game</h1>
+            <h1>Chroma Dash</h1>
+            <p style="font-size: 1em;">রঙ মিলিয়ে স্কোর করুন!</p>
             <button id="start-btn">শুরু করুন</button>
         </div>
 
         <div id="game-area">
-            <div id="road-lines"></div>
-            <div id="side-lines"></div>
-            <div id="bike"></div>
+            <div id="player"></div>
             <div id="score-info">
                 <div id="score-display">স্কোর: 0</div>
                 <div id="high-score-display">সর্বোচ্চ স্কোর: 0</div>
@@ -252,20 +184,15 @@
                 <h2>গেম শেষ!</h2>
                 <p>আপনার স্কোর: <span id="final-score">0</span></p>
                 <p>সর্বোচ্চ স্কোর: <span id="final-high-score">0</span></p>
-                <button id="restart-btn">আবার শুরু করুন</button>
+                <button id="restart-btn">আবার খেলুন</button>
             </div>
         </div>
     </div>
     
-    <div id="controls">
-        <button id="left-btn">বাম</button>
-        <button id="right-btn">ডান</button>
-    </div>
-
     <script>
-        const appContainer = document.getElementById('app-container');
+        const gameContainer = document.getElementById('game-container');
         const gameArea = document.getElementById('game-area');
-        const bike = document.getElementById('bike');
+        const player = document.getElementById('player');
         const scoreDisplay = document.getElementById('score-display');
         const highScoreDisplay = document.getElementById('high-score-display');
         const startScreen = document.getElementById('start-screen');
@@ -274,115 +201,121 @@
         const finalScoreDisplay = document.getElementById('final-score');
         const finalHighScoreDisplay = document.getElementById('final-high-score');
         const restartBtn = document.getElementById('restart-btn');
-        const leftBtn = document.getElementById('left-btn');
-        const rightBtn = document.getElementById('right-btn');
-        
-        let bikePositionX = 0;
+
+        const colors = ['#00c6ff', '#00ff62', '#ff6a00', '#ff00ff']; // নিয়ন নীল, সবুজ, কমলা, ম্যাজেন্টা
         let score = 0;
         let highScore = localStorage.getItem('highScore') || 0;
         let isGameOver = false;
         let isGamePaused = true;
-        let gameSpeed = 5;
-        const maxSpeed = 20;
+        let gameSpeed = 3;
+        const maxSpeed = 10;
         let animationFrameId;
+        const obstacleSpawnInterval = 1500;
+        let lastObstacleTime = 0;
 
         function updateHighScore() {
             highScoreDisplay.innerText = "সর্বোচ্চ স্কোর: " + highScore;
         }
 
-        function updateBikePosition() {
-            bike.style.left = bikePositionX + 'px';
-        }
-
-        function moveBike(direction) {
+        function switchPlayerColor() {
             if (isGameOver || isGamePaused) return;
-            const step = 25;
-            const containerWidth = appContainer.clientWidth;
-            const bikeWidth = bike.clientWidth;
-
-            if (direction === 'left' && bikePositionX > 10) {
-                bikePositionX -= step;
-            } else if (direction === 'right' && bikePositionX < containerWidth - bikeWidth - 10) {
-                bikePositionX += step;
-            }
-            updateBikePosition();
+            const currentColor = player.style.backgroundColor;
+            const currentIndex = colors.indexOf(currentColor);
+            const newIndex = (currentIndex + 1) % colors.length;
+            player.style.backgroundColor = colors[newIndex];
+            player.style.boxShadow = `0 0 20px ${colors[newIndex]}`;
+        }
+        
+        function createObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            
+            const shuffledColors = [...colors].sort(() => 0.5 - Math.random());
+            
+            shuffledColors.forEach(color => {
+                const section = document.createElement('div');
+                section.classList.add('obstacle-section');
+                section.style.backgroundColor = color;
+                section.style.boxShadow = `0 0 10px ${color}`;
+                obstacle.appendChild(section);
+            });
+            
+            gameContainer.appendChild(obstacle);
         }
 
-        function gameLoop() {
+        function gameLoop(timestamp) {
             if (isGameOver || isGamePaused) {
                 cancelAnimationFrame(animationFrameId);
                 return;
             }
 
             const obstacles = document.querySelectorAll('.obstacle');
-            const bikeRect = bike.getBoundingClientRect();
+            
+            if (timestamp - lastObstacleTime > obstacleSpawnInterval / (gameSpeed / 3)) {
+                createObstacle();
+                lastObstacleTime = timestamp;
+            }
+
+            const playerRect = player.getBoundingClientRect();
+            const playerColor = player.style.backgroundColor;
             
             obstacles.forEach(obstacle => {
                 let obstacleTop = parseFloat(obstacle.style.top);
                 obstacleTop += gameSpeed;
                 obstacle.style.top = obstacleTop + 'px';
-                
+
                 const obstacleRect = obstacle.getBoundingClientRect();
                 
                 // সংঘর্ষ পরীক্ষা
-                if (
-                    bikeRect.left < obstacleRect.right &&
-                    bikeRect.right > obstacleRect.left &&
-                    bikeRect.top < obstacleRect.bottom &&
-                    bikeRect.bottom > obstacleRect.top
-                ) {
-                    gameOver();
-                }
-
-                if (obstacleTop > appContainer.clientHeight) {
-                    score++;
-                    scoreDisplay.innerText = "স্কোর: " + score;
+                if (playerRect.bottom > obstacleRect.top && playerRect.top < obstacleRect.bottom) {
+                    const sections = obstacle.querySelectorAll('.obstacle-section');
+                    let passed = false;
                     
-                    if (gameSpeed < maxSpeed) {
-                        gameSpeed += 0.2;
-                        const animSpeed = 0.5 / (gameSpeed / 5);
-                        document.querySelector('#road-lines').style.animationDuration = animSpeed + 's';
-                        document.querySelector('#side-lines').style.animationDuration = animSpeed + 's';
+                    sections.forEach(section => {
+                        const sectionRect = section.getBoundingClientRect();
+                        if (
+                            playerRect.left < sectionRect.right &&
+                            playerRect.right > sectionRect.left &&
+                            playerRect.bottom > sectionRect.top &&
+                            playerRect.top < sectionRect.bottom
+                        ) {
+                            if (playerColor === section.style.backgroundColor) {
+                                passed = true;
+                            } else {
+                                gameOver();
+                            }
+                        }
+                    });
+
+                    if (obstacleTop > gameContainer.clientHeight) {
+                        score++;
+                        scoreDisplay.innerText = "স্কোর: " + score;
+                        if (gameSpeed < maxSpeed) {
+                            gameSpeed += 0.1;
+                        }
+                        obstacle.remove();
                     }
-                    obstacle.remove();
                 }
             });
             
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        function createObstacle() {
-            if (isGameOver || isGamePaused) return;
-
-            const obstacle = document.createElement('div');
-            obstacle.classList.add('obstacle');
-            const obstacleWidth = 60;
-            const containerWidth = appContainer.clientWidth;
-            const position = Math.random() * (containerWidth - obstacleWidth - 20) + 10;
-            obstacle.style.left = position + 'px';
-            appContainer.appendChild(obstacle);
-            obstacle.style.top = '-50px';
-
-            const nextObstacleTime = 1500 / (gameSpeed / 5);
-            setTimeout(createObstacle, nextObstacleTime > 500 ? nextObstacleTime : 500);
-        }
-
         function startGame() {
             isGamePaused = false;
             isGameOver = false;
             score = 0;
-            gameSpeed = 5;
+            gameSpeed = 3;
             scoreDisplay.innerText = "স্কোর: 0";
             gameOverBox.style.display = 'none';
             startScreen.style.display = 'none';
             gameArea.style.display = 'block';
 
-            bikePositionX = appContainer.clientWidth / 2 - bike.clientWidth / 2;
-            updateBikePosition();
+            player.style.backgroundColor = colors[0];
+            player.style.boxShadow = `0 0 20px ${colors[0]}`;
             document.querySelectorAll('.obstacle').forEach(obstacle => obstacle.remove());
 
             animationFrameId = requestAnimationFrame(gameLoop);
-            createObstacle();
         }
         
         function gameOver() {
@@ -401,26 +334,10 @@
             updateHighScore();
         }
 
-        // ইভেন্ট লিসেনার
+        gameContainer.addEventListener('click', switchPlayerColor);
         startBtn.addEventListener('click', startGame);
         restartBtn.addEventListener('click', startGame);
-        leftBtn.addEventListener('click', () => moveBike('left'));
-        rightBtn.addEventListener('click', () => moveBike('right'));
-
-        appContainer.addEventListener('touchstart', (e) => {
-            if (isGameOver || isGamePaused) return;
-            const touchX = e.touches[0].clientX;
-            const containerLeft = appContainer.getBoundingClientRect().left;
-            const containerWidth = appContainer.clientWidth;
-            
-            if (touchX < containerLeft + containerWidth / 2) {
-                moveBike('left');
-            } else {
-                moveBike('right');
-            }
-        });
         
-        // প্রথম লোডে হাই স্কোর আপডেট করা
         updateHighScore();
     </script>
 </body>
