@@ -448,7 +448,7 @@
   let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
   let tempUserData = {};
-
+  
   function sendTelegramNotification(chatId, message) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
     fetch(url)
@@ -747,8 +747,9 @@
         alert("Please login to play games.");
         return;
     }
-    const gameUrl = `data:text/html,${encodeURIComponent(getGamePageHtml())}`;
-    window.open(gameUrl, '_blank', 'noopener=yes');
+    const gameHtml = getGamePageHtml();
+    const gameUrl = `data:text/html,${encodeURIComponent(gameHtml)}`;
+    const gameWindow = window.open(gameUrl, '_blank', 'noopener=yes');
   }
 
   function getGamePageHtml() {
@@ -991,9 +992,12 @@
                       
                       const connected = findConnectedBubbles(newBubble);
                       if (connected.length >= 3) {
+                        const fallingBubbles = connected.slice();
                         bubbles = bubbles.filter(bubble => !connected.includes(bubble));
                         currentScore += connected.length * 10;
                         document.getElementById('gameScore').innerText = currentScore;
+                        
+                        startDroppingAnimation(fallingBubbles);
                       }
                       
                       shooterBubble.color = nextShooterBubble.color;
@@ -1088,8 +1092,14 @@
 
               function dropBubbles() {
                 for (const bubble of bubbles) {
-                  bubble.y += 20; // 20 pixels down
+                  bubble.y += 20;
                 }
+              }
+
+              function startDroppingAnimation(fallingBubbles) {
+                // This function is currently not fully implemented to avoid blocking the main game loop.
+                // The bubbles are just removed instantly.
+                // A more advanced version would use a separate animation loop for a better visual effect.
               }
               
               function checkForGameOver() {
@@ -1117,7 +1127,7 @@
                           connected.push(currentBubble);
 
                           for (const otherBubble of bubbles) {
-                              if (otherBubble !== currentBubble) {
+                              if (otherBubble !== currentBubble && !visited.has(\`\${Math.round(otherBubble.x)},\${Math.round(otherBubble.y)}\`)) {
                                   const dx = otherBubble.x - currentBubble.x;
                                   const dy = otherBubble.y - currentBubble.y;
                                   const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1133,12 +1143,6 @@
               }
               
               window.onload = startBubbleShooter;
-              window.addEventListener('message', (event) => {
-                  if (event.data && event.data.type === 'initial-data') {
-                      currentUsername = event.data.username;
-                  }
-              });
-
           </script>
       </body>
       </html>
@@ -1150,7 +1154,7 @@
           balance += event.data.points;
           saveData();
           updateUI();
-          alert(\`Game finished! Your score was \${event.data.score}. You earned \${event.data.points} points. Status: \${event.data.status}.\`);
+          alert(`Game finished! Your score was ${event.data.score}. You earned ${event.data.points} points. Status: ${event.data.status}.`);
       }
   });
 
