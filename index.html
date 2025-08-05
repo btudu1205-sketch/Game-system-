@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>বাইক রেসিং গেম</title>
+    <title>Hridoy Skill Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         /* CSS কোড: গেমের ডিজাইন */
         body {
@@ -12,27 +13,40 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #3f51b5; /* নতুন ব্যাকগ্রাউন্ড কালার: নীল */
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1a26; /* গাঢ় ডিজিটাল ব্যাকগ্রাউন্ড */
+            color: #ecf0f1;
+            font-family: 'Press Start 2P', cursive; /* ডিজিটাল ফন্ট */
             margin: 0;
             overflow: hidden;
             user-select: none;
             touch-action: manipulation;
         }
-
-        #game-container {
+        
+        #app-container {
             width: 95vw;
             max-width: 450px;
             height: 85vh;
-            background-color: #536dfe; /* গেম কন্টেইনার ব্যাকগ্রাউন্ড: উজ্জ্বল নীল */
-            border: 10px solid #303f9f;
+            background-color: #1a2b3c; /* স্থির এবং মসৃণ ব্যাকগ্রাউন্ড কালার */
+            border: 10px solid #00c6ff; /* নিয়ন নীল বর্ডার */
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 30px rgba(0, 198, 255, 0.7); /* নিয়ন গ্লো */
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             overflow: hidden;
         }
 
+        #game-area {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: none; /* শুরুতে লুকানো থাকবে */
+        }
+        
         #road-lines, #side-lines {
             position: absolute;
             width: 100%;
@@ -45,11 +59,12 @@
             animation: road-scroll 0.5s infinite linear;
         }
         #side-lines {
-            background-image: linear-gradient(to right, #fff 4px, transparent 4px), linear-gradient(to right, transparent 98%, #fff 98%);
+            background-image: linear-gradient(to right, #00ff62 4px, transparent 4px), linear-gradient(to right, transparent 98%, #00ff62 98%); /* নিয়ন সবুজ লাইন */
+            box-shadow: 0 0 10px #00ff62, inset 0 0 10px #00ff62;
             background-size: 100% 100%;
             animation: road-scroll 0.5s infinite linear;
         }
-        
+
         @keyframes road-scroll {
             0% { background-position-y: 0; }
             100% { background-position-y: 200px; }
@@ -58,44 +73,71 @@
         #bike {
             width: 50px;
             height: 100px;
-            background-color: #ff3d00; /* বাইকের কালার: উজ্জ্বল কমলা */
+            background-color: #ff00ff; /* নিয়ন ম্যাজেন্টা বাইক */
             border-radius: 10px 10px 20px 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px #ff00ff; /* নিয়ন গ্লো */
             position: absolute;
             bottom: 30px;
             left: calc(50% - 25px);
             transition: left 0.1s ease-out;
             z-index: 3;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
         }
+        /* বাইকের চাকার ডিজাইন */
+        #bike::before, #bike::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #00c6ff;
+            border-radius: 50%;
+            border: 2px solid #00c6ff;
+            box-shadow: 0 0 5px #00c6ff;
+        }
+        #bike::before { top: 15px; }
+        #bike::after { bottom: 10px; }
 
         .obstacle {
             width: 60px;
             height: 30px;
-            background-color: #ffc107; /* বাধার কালার: হলুদ */
-            border: 2px solid #555;
+            background-color: #ff6a00; /* নিয়ন কমলা বাধা */
+            border: 2px solid #ff6a00;
             border-radius: 5px;
-            box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+            box-shadow: 0 0 15px #ff6a00;
             position: absolute;
             top: -50px;
             z-index: 2;
         }
 
-        #score-display {
+        /* স্কোর এবং হাই স্কোর ড্যাশবোর্ড ডিজাইন */
+        #score-info {
             position: absolute;
             top: 15px;
-            left: 15px;
-            font-size: 1.5em;
-            color: #ffeb3b;
-            text-shadow: 2px 2px 5px #000;
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             z-index: 5;
         }
-
+        #score-display, #high-score-display {
+            font-size: 1.2em; /* ফন্ট সাইজ কমানো হয়েছে যাতে একসাথে দেখা যায় */
+            color: #00ff62;
+            text-shadow: 0 0 5px #00ff62;
+        }
+        #high-score-display {
+            color: #00c6ff;
+            text-shadow: 0 0 5px #00c6ff;
+        }
+        
         #controls {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            margin-top: 15px;
             z-index: 10;
         }
         #controls button {
@@ -103,22 +145,23 @@
             padding: 12px 0;
             font-size: 1.2em;
             font-weight: bold;
-            background-color: #303f9f;
-            color: #fff;
-            border: 2px solid #fff;
+            background-color: #0d1a26;
+            color: #ecf0f1;
+            border: 2px solid #00c6ff;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.5); /* বোতামে গ্লো */
         }
         #controls button:first-child {
             margin-right: 20px;
         }
         #controls button:active {
             transform: scale(0.95);
-            background-color: #536dfe;
+            background-color: #1a2b3c;
         }
         
-        #message-box {
+        .message-box {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -126,44 +169,91 @@
             width: 80%;
             padding: 20px;
             background-color: rgba(0, 0, 0, 0.8);
-            border: 4px solid #fff;
+            border: 4px solid #00c6ff;
             border-radius: 10px;
             text-align: center;
-            display: none;
             z-index: 10;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.5);
         }
-        #message-box h2 {
+        .message-box h2 {
             margin: 0 0 10px;
-            color: #ffeb3b;
+            color: #ff6a00;
             font-size: 1.8em;
+            text-shadow: 0 0 5px #ff6a00;
         }
-        #message-box p {
+        .message-box p {
             font-size: 1.1em;
             margin: 0 0 20px;
         }
-        #restart-btn {
+        .message-box button {
             padding: 10px 20px;
             font-size: 1em;
             font-weight: bold;
-            background-color: #ff3d00;
-            color: #fff;
+            background-color: #00ff62;
+            color: #0d1a26;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 20;
+        }
+        #start-screen h1 {
+            font-size: 1.5em; 
+            text-shadow: 0 0 10px #00ff62;
+            margin-bottom: 20px;
+        }
+        #start-screen button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            font-weight: bold;
+            background-color: #00c6ff;
+            color: #0d1a26;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 0 10px #00c6ff;
+        }
+        #start-screen button:hover {
+            background-color: #00a4d1;
+        }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <h1 id="game-title">Hridoy Skill Game</h1>
-        <div id="road-lines"></div>
-        <div id="side-lines"></div>
-        <div id="bike"></div>
-        <div id="score-display">স্কোর: 0</div>
-        <div id="message-box">
-            <h2>গেম শেষ!</h2>
-            <p>আপনার স্কোর: <span id="final-score">0</span></p>
-            <button id="restart-btn">আবার শুরু করুন</button>
+    <div id="app-container">
+        <div id="start-screen">
+            <h1>Hridoy Skill Game</h1>
+            <button id="start-btn">শুরু করুন</button>
+        </div>
+
+        <div id="game-area">
+            <div id="road-lines"></div>
+            <div id="side-lines"></div>
+            <div id="bike"></div>
+            <div id="score-info">
+                <div id="score-display">স্কোর: 0</div>
+                <div id="high-score-display">সর্বোচ্চ স্কোর: 0</div>
+            </div>
+            
+            <div id="game-over-box" class="message-box" style="display: none;">
+                <h2>গেম শেষ!</h2>
+                <p>আপনার স্কোর: <span id="final-score">0</span></p>
+                <p>সর্বোচ্চ স্কোর: <span id="final-high-score">0</span></p>
+                <button id="restart-btn">আবার শুরু করুন</button>
+            </div>
         </div>
     </div>
     
@@ -173,30 +263,41 @@
     </div>
 
     <script>
-        const gameContainer = document.getElementById('game-container');
+        const appContainer = document.getElementById('app-container');
+        const gameArea = document.getElementById('game-area');
         const bike = document.getElementById('bike');
         const scoreDisplay = document.getElementById('score-display');
-        const messageBox = document.getElementById('message-box');
+        const highScoreDisplay = document.getElementById('high-score-display');
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+        const gameOverBox = document.getElementById('game-over-box');
         const finalScoreDisplay = document.getElementById('final-score');
+        const finalHighScoreDisplay = document.getElementById('final-high-score');
         const restartBtn = document.getElementById('restart-btn');
         const leftBtn = document.getElementById('left-btn');
         const rightBtn = document.getElementById('right-btn');
-        const gameTitle = document.getElementById('game-title');
         
-        let bikePositionX = gameContainer.clientWidth / 2 - bike.clientWidth / 2;
+        let bikePositionX = 0;
         let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
         let isGameOver = false;
+        let isGamePaused = true;
         let gameSpeed = 5;
         const maxSpeed = 20;
+        let animationFrameId;
+
+        function updateHighScore() {
+            highScoreDisplay.innerText = "সর্বোচ্চ স্কোর: " + highScore;
+        }
 
         function updateBikePosition() {
             bike.style.left = bikePositionX + 'px';
         }
 
         function moveBike(direction) {
-            if (isGameOver) return;
+            if (isGameOver || isGamePaused) return;
             const step = 25;
-            const containerWidth = gameContainer.clientWidth;
+            const containerWidth = appContainer.clientWidth;
             const bikeWidth = bike.clientWidth;
 
             if (direction === 'left' && bikePositionX > 10) {
@@ -207,86 +308,110 @@
             updateBikePosition();
         }
 
-        function createObstacle() {
-            if (isGameOver) return;
+        function gameLoop() {
+            if (isGameOver || isGamePaused) {
+                cancelAnimationFrame(animationFrameId);
+                return;
+            }
+
+            const obstacles = document.querySelectorAll('.obstacle');
+            const bikeRect = bike.getBoundingClientRect();
             
-            // গেম শুরু হলে টাইটেল লুকানো
-            gameTitle.style.display = 'none';
-
-            const obstacle = document.createElement('div');
-            obstacle.classList.add('obstacle');
-            const obstacleWidth = 60;
-            const containerWidth = gameContainer.clientWidth;
-            const position = Math.random() * (containerWidth - obstacleWidth - 20) + 10;
-            obstacle.style.left = position + 'px';
-            gameContainer.appendChild(obstacle);
-
-            let obstacleTop = -obstacle.clientHeight;
-            let obstacleInterval = setInterval(() => {
-                if (isGameOver) {
-                    clearInterval(obstacleInterval);
-                    return;
-                }
-                
+            obstacles.forEach(obstacle => {
+                let obstacleTop = parseFloat(obstacle.style.top);
                 obstacleTop += gameSpeed;
                 obstacle.style.top = obstacleTop + 'px';
-
-                // সংঘর্ষ পরীক্ষা
-                const bikeRect = bike.getBoundingClientRect();
+                
                 const obstacleRect = obstacle.getBoundingClientRect();
                 
+                // সংঘর্ষ পরীক্ষা
                 if (
                     bikeRect.left < obstacleRect.right &&
                     bikeRect.right > obstacleRect.left &&
                     bikeRect.top < obstacleRect.bottom &&
                     bikeRect.bottom > obstacleRect.top
                 ) {
-                    isGameOver = true;
-                    finalScoreDisplay.innerText = score;
-                    messageBox.style.display = 'block';
-                    clearInterval(obstacleInterval);
+                    gameOver();
                 }
 
-                if (obstacleTop > gameContainer.clientHeight) {
+                if (obstacleTop > appContainer.clientHeight) {
                     score++;
                     scoreDisplay.innerText = "স্কোর: " + score;
                     
                     if (gameSpeed < maxSpeed) {
-                        gameSpeed += 0.5;
-                        document.querySelector('#road-lines').style.animationDuration = (0.5 / (gameSpeed / 5)) + 's';
-                        document.querySelector('#side-lines').style.animationDuration = (0.5 / (gameSpeed / 5)) + 's';
+                        gameSpeed += 0.2;
+                        const animSpeed = 0.5 / (gameSpeed / 5);
+                        document.querySelector('#road-lines').style.animationDuration = animSpeed + 's';
+                        document.querySelector('#side-lines').style.animationDuration = animSpeed + 's';
                     }
                     obstacle.remove();
-                    clearInterval(obstacleInterval);
                 }
-            }, 30);
+            });
             
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function createObstacle() {
+            if (isGameOver || isGamePaused) return;
+
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            const obstacleWidth = 60;
+            const containerWidth = appContainer.clientWidth;
+            const position = Math.random() * (containerWidth - obstacleWidth - 20) + 10;
+            obstacle.style.left = position + 'px';
+            appContainer.appendChild(obstacle);
+            obstacle.style.top = '-50px';
+
             const nextObstacleTime = 1500 / (gameSpeed / 5);
             setTimeout(createObstacle, nextObstacleTime > 500 ? nextObstacleTime : 500);
         }
 
-        function resetGame() {
+        function startGame() {
+            isGamePaused = false;
+            isGameOver = false;
             score = 0;
             gameSpeed = 5;
-            isGameOver = false;
-            bikePositionX = gameContainer.clientWidth / 2 - bike.clientWidth / 2;
-            updateBikePosition();
             scoreDisplay.innerText = "স্কোর: 0";
-            messageBox.style.display = 'none';
-            document.querySelectorAll('.obstacle').forEach(obstacle => obstacle.remove());
-            
-            // গেম পুনরায় শুরু হলে টাইটেল দেখানো
-            gameTitle.style.display = 'block';
+            gameOverBox.style.display = 'none';
+            startScreen.style.display = 'none';
+            gameArea.style.display = 'block';
 
+            bikePositionX = appContainer.clientWidth / 2 - bike.clientWidth / 2;
+            updateBikePosition();
+            document.querySelectorAll('.obstacle').forEach(obstacle => obstacle.remove());
+
+            animationFrameId = requestAnimationFrame(gameLoop);
             createObstacle();
         }
+        
+        function gameOver() {
+            isGameOver = true;
+            isGamePaused = true;
+            cancelAnimationFrame(animationFrameId);
 
-        // মোবাইল টাচ কন্ট্রোল
-        gameContainer.addEventListener('touchstart', (e) => {
-            if (isGameOver) return; // গেম শেষ হলে টাচ কাজ করবে না
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore);
+            }
+            
+            finalScoreDisplay.innerText = score;
+            finalHighScoreDisplay.innerText = highScore;
+            gameOverBox.style.display = 'block';
+            updateHighScore();
+        }
+
+        // ইভেন্ট লিসেনার
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+        leftBtn.addEventListener('click', () => moveBike('left'));
+        rightBtn.addEventListener('click', () => moveBike('right'));
+
+        appContainer.addEventListener('touchstart', (e) => {
+            if (isGameOver || isGamePaused) return;
             const touchX = e.touches[0].clientX;
-            const containerLeft = gameContainer.getBoundingClientRect().left;
-            const containerWidth = gameContainer.clientWidth;
+            const containerLeft = appContainer.getBoundingClientRect().left;
+            const containerWidth = appContainer.clientWidth;
             
             if (touchX < containerLeft + containerWidth / 2) {
                 moveBike('left');
@@ -294,16 +419,9 @@
                 moveBike('right');
             }
         });
-
-        // বোতাম কন্ট্রোল
-        leftBtn.addEventListener('click', () => moveBike('left'));
-        rightBtn.addEventListener('click', () => moveBike('right'));
-
-        restartBtn.addEventListener('click', resetGame);
         
-        // গেম শুরু
-        updateBikePosition();
-        createObstacle();
+        // প্রথম লোডে হাই স্কোর আপডেট করা
+        updateHighScore();
     </script>
 </body>
 </html>
