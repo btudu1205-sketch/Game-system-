@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Monetag Earn Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #F44336;
+      --secondary-color: #FF9800;
+      --background-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: var(--background-color);
+      color: var(--text-color);
+    }
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    .auth-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 30px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .hidden { display: none; }
+    h1, h2 { text-align: center; color: #444; }
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th { background-color: #f7f7f7; }
+    .btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 0 5px;
+    }
+    .btn-approve { background-color: #4CAF50; }
+    .btn-reject { background-color: #f44336; }
+    .btn-login { width: 100%; background-color: var(--primary-color); }
+    input {
+      width: calc(100% - 22px);
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: var(--border-radius);
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<div id="adminLogin" class="auth-container">
+  <h2><i class="fas fa-user-shield"></i> Admin Login</h2>
+  <form onsubmit="handleAdminLogin(event)">
+    <input type="email" id="adminEmail" placeholder="Admin Email" required>
+    <input type="password" id="adminPassword" placeholder="Admin Password" required>
+    <button type="submit" class="btn btn-login">Login</button>
+  </form>
+</div>
+
+<div id="adminPanel" class="container hidden">
+  <h1>Admin Dashboard</h1>
+  
+  <div class="card">
+    <h2>Withdrawal Requests</h2>
+    <table id="withdrawalTable">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Number</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        </tbody>
+    </table>
+  </div>
+  
+  <div class="card">
+    <h2>All Users</h2>
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Chat ID</th>
+          <th>Balance</th>
+          <th>Total Withdrawn</th>
+        </tr>
+      </thead>
+       <tbody>
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+<script>
+ const firebaseConfig = {
+  apiKey: "AIzaSyCwXfSiESq78ZoUIUUrDOPmEpqbTcPbIqQ",
+  authDomain: "freee-earn.firebaseapp.com",
+  databaseURL: "https://freee-earn-default-rtdb.firebaseio.com",
+  projectId: "freee-earn",
+  storageBucket: "freee-earn.firebasestorage.app",
+  messagingSenderId: "6990927854",
+  appId: "1:6990927854:web:b673a2fbf0684f30f520ff",
+  measurementId: "G-QKLW2VRQ8W"
+};
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const auth = firebase.auth();
+  
+  // --- ADMIN CREDENTIALS ---
+  // You can change these. For better security, use Firebase custom claims.
+  const ADMIN_EMAIL = "admin@monetag.bot";
+  const ADMIN_PASSWORD = "adminpassword123";
+
+  function handleAdminLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('adminEmail').value;
+    const password = document.getElementById('adminPassword').value;
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+       document.getElementById('adminLogin').classList.add('hidden');
+       document.getElementById('adminPanel').classList.remove('hidden');
+       loadAdminData();
+    } else {
+        alert("Incorrect Admin credentials!");
+    }
+  }
+
+  function loadAdminData() {
+    loadWithdrawals();
+    loadUsers();
+  }
+
+  function loadWithdrawals() {
+    const withdrawalRef = db.ref('withdrawals');
+    const tableBody = document.getElementById('withdrawalTable').getElementsByTagName('tbody')[0];
+    
+    withdrawalRef.on('value', (snapshot) => {
+      tableBody.innerHTML = ''; // Clear previous data
+      const withdrawals = snapshot.val();
+      if (withdrawals) {
+        for (const id in withdrawals) {
+          const request = withdrawals[id];
+          if (request.status === 'pending') { // Only show pending requests
+             const row = tableBody.insertRow();
+             row.innerHTML = `
+                <td>${request.username}</td>
+                <td>${request.number}</td>
+                <td>${request.amount}</td>
+                <td><span style="color:orange;">${request.status}</span></td>
+                <td>
+                  <button class="btn btn-approve" onclick="handleWithdrawal('${id}', '${request.userId}', ${request.amount}, 'approved')">Approve</button>
+                  <button class="btn btn-reject" onclick="handleWithdrawal('${id}', '${request.userId}', ${request.amount}, 'rejected')">Reject</button>
+                </td>
+             `;
+          }
+        }
+      }
+    });
+  }
+  
+  function loadUsers() {
+    const usersRef = db.ref('users');
+    const tableBody = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
+    
+    usersRef.on('value', (snapshot) => {
+        tableBody.innerHTML = '';
+        const users = snapshot.val();
+        if(users) {
+            for(const uid in users) {
+                const user = users[uid];
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.chatId}</td>
+                    <td>${user.balance}</td>
+                    <td>${user.withdraw || 0}</td>
+                `;
+            }
+        }
+    });
+  }
+
+  function handleWithdrawal(requestId, userId, amount, newStatus) {
+    const withdrawalRef = db.ref(`withdrawals/${requestId}`);
+    const userRef = db.ref(`users/${userId}`);
+
+    if (newStatus === 'approved') {
+        // Use a transaction to ensure data consistency
+        userRef.transaction((currentUserData) => {
+            if (currentUserData) {
+                if (currentUserData.balance >= amount) {
+                    currentUserData.balance -= amount;
+                    currentUserData.withdraw = (currentUserData.withdraw || 0) + amount;
+                } else {
+                    // Not enough balance, abort transaction
+                    console.error("User does not have enough balance. Aborting.");
+                    return; // Abort
+                }
+            }
+            return currentUserData; // Commit changes
+        }, (error, committed, snapshot) => {
+            if (error) {
+                alert("Transaction failed: " + error);
+            } else if (!committed) {
+                alert("Approval failed: User has insufficient funds.");
+            } else {
+                withdrawalRef.update({ status: newStatus });
+                alert(`Request ${newStatus} successfully.`);
+                // You can add a telegram notification here to inform the user
+            }
+        });
+
+    } else if (newStatus === 'rejected') {
+        // Just update the request status, no change in user balance
+        withdrawalRef.update({ status: newStatus });
+        alert(`Request ${newStatus} successfully.`);
+        // You can add a telegram notification here to inform the user
+    }
+  }
+
+</script>
+</body>
+</html>
